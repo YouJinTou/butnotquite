@@ -4,15 +4,15 @@
 
     internal sealed class Chessboard
     {
-        internal Square[] Board;
+        internal Square[] Squares;
 
         internal Chessboard()
         {
-            this.Board = new Square[64];
+            this.Squares = new Square[64];
 
-            for (byte i = 0; i < Board.Length; i++)
+            for (byte i = 0; i < Squares.Length; i++)
             {
-                this.Board[i] = new Square();
+                this.Squares[i] = new Square();
             }
         }
 
@@ -21,7 +21,7 @@
             this.SetBlackPieces();
             this.FillEmptySquares();
             this.SetWhitePieces();
-        }        
+        }
 
         private void SetBlackPieces()
         {
@@ -31,42 +31,42 @@
             {
                 if (i >= 8)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Pawn);
+                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.Pawn);
 
                     continue;
                 }
 
                 if (i == 0 || i == 7)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Rook);
+                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.Rook);
 
                     continue;
                 }
 
                 if (i == 1 || i == 6)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Knight);
+                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.Knight);
 
                     continue;
                 }
 
                 if (i == 2 || i == 5)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Bishop);
+                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.Bishop);
 
                     continue;
                 }
 
                 if (i == 3)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Queen);
+                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.Queen);
 
                     continue;
                 }
 
                 if (i == 4)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.King);
+                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.King);
                 }
             }
         }
@@ -78,7 +78,7 @@
 
             for (byte i = blackTerritoryEnd; i <= emptyTerritoryLimit; i++)
             {
-                this.Board[i].OccupiedBy = new Piece();
+                this.Squares[i].OccupiedBy = new Piece();
             }
         }
 
@@ -90,42 +90,42 @@
             {
                 if (i <= 55)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Pawn);
+                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.Pawn);
 
                     continue;
                 }
 
                 if (i == 56 || i == 63)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Rook);
+                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.Rook);
 
                     continue;
                 }
 
                 if (i == 57 || i == 62)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Knight);
+                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.Knight);
 
                     continue;
                 }
 
-                if (i == 56 || i == 61)
+                if (i == 58 || i == 61)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Bishop);
+                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.Bishop);
 
                     continue;
                 }
 
-                if (i == 55)
+                if (i == 59)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Queen);
+                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.Queen);
 
                     continue;
                 }
 
-                if (i == 54)
+                if (i == 60)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.King);
+                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.King);
                 }
             }
         }
