@@ -1,0 +1,6 @@
+D:\Programming\Git Repositories\butnotquite\butnotquite\bin\Debug\butnotquite.dll.config
+D:\Programming\Git Repositories\butnotquite\butnotquite\bin\Debug\butnotquite.dll
+D:\Programming\Git Repositories\butnotquite\butnotquite\bin\Debug\butnotquite.pdb
+D:\Programming\Git Repositories\butnotquite\butnotquite\obj\Debug\butnotquite.csprojResolveAssemblyReference.cache
+D:\Programming\Git Repositories\butnotquite\butnotquite\obj\Debug\butnotquite.dll
+D:\Programming\Git Repositories\butnotquite\butnotquite\obj\Debug\butnotquite.pdb
