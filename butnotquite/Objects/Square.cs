@@ -1,6 +1,6 @@
 ﻿namespace butnotquite.Objects
 {
-    using butnotquite.Defaults;
+    using Defaults;
 
     internal struct Square
     {

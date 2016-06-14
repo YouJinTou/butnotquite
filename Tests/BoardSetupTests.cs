@@ -2,7 +2,8 @@
 
 namespace butnotquite.Tests
 {
-    using butnotquite.Defaults;
+    using Defaults;
+    using Objects;
 
     [TestClass]
     public class BoardSetupTests
