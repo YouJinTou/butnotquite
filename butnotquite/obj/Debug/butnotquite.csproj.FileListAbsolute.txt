@@ -4,3 +4,9 @@ D:\Programming\Git Repositories\butnotquite\butnotquite\bin\Debug\butnotquite.pd
 D:\Programming\Git Repositories\butnotquite\butnotquite\obj\Debug\butnotquite.csprojResolveAssemblyReference.cache
 D:\Programming\Git Repositories\butnotquite\butnotquite\obj\Debug\butnotquite.dll
 D:\Programming\Git Repositories\butnotquite\butnotquite\obj\Debug\butnotquite.pdb
+C:\Users\dimitard.KUKUIBG\Desktop\Random\butnotquite\butnotquite\bin\Debug\butnotquite.exe.config
+C:\Users\dimitard.KUKUIBG\Desktop\Random\butnotquite\butnotquite\obj\Debug\butnotquite.pdb
+C:\Users\dimitard.KUKUIBG\Desktop\Random\butnotquite\butnotquite\bin\Debug\butnotquite.exe
+C:\Users\dimitard.KUKUIBG\Desktop\Random\butnotquite\butnotquite\bin\Debug\butnotquite.pdb
+C:\Users\dimitard.KUKUIBG\Desktop\Random\butnotquite\butnotquite\obj\Debug\butnotquite.csprojResolveAssemblyReference.cache
+C:\Users\dimitard.KUKUIBG\Desktop\Random\butnotquite\butnotquite\obj\Debug\butnotquite.exe

@@ -3,6 +3,7 @@
     internal enum Color
     {
         White,
-        Black
+        Black,
+        None
     }
 }
