@@ -1,8 +1,0 @@
-D:\Programming\Git Repositories\butnotquite\Tests\bin\Debug\Tests.dll
-D:\Programming\Git Repositories\butnotquite\Tests\bin\Debug\Tests.pdb
-D:\Programming\Git Repositories\butnotquite\Tests\bin\Debug\butnotquite.dll
-D:\Programming\Git Repositories\butnotquite\Tests\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
-D:\Programming\Git Repositories\butnotquite\Tests\bin\Debug\butnotquite.pdb
-D:\Programming\Git Repositories\butnotquite\Tests\obj\Debug\Tests.csprojResolveAssemblyReference.cache
-D:\Programming\Git Repositories\butnotquite\Tests\obj\Debug\Tests.dll
-D:\Programming\Git Repositories\butnotquite\Tests\obj\Debug\Tests.pdb
