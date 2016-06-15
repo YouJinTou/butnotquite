@@ -1,2 +1,0 @@
-# butnotquite
-A chess engine

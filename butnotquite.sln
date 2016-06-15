@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "butnotquite", "butnotquite\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{AA2B69CE-ABF5-4DD6-AA96-CA07D267F1EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{F50B0CF6-DAC4-4EAB-B3A4-EE67993D782E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{AA2B69CE-ABF5-4DD6-AA96-CA07D267F1EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA2B69CE-ABF5-4DD6-AA96-CA07D267F1EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA2B69CE-ABF5-4DD6-AA96-CA07D267F1EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F50B0CF6-DAC4-4EAB-B3A4-EE67993D782E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F50B0CF6-DAC4-4EAB-B3A4-EE67993D782E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F50B0CF6-DAC4-4EAB-B3A4-EE67993D782E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F50B0CF6-DAC4-4EAB-B3A4-EE67993D782E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

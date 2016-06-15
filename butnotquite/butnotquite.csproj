@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A59C6010-8642-4A19-876B-75D223E8F06C}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>butnotquite</RootNamespace>
     <AssemblyName>butnotquite</AssemblyName>
@@ -46,7 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Engine.cs" />
     <Compile Include="Models\Board.cs" />
     <Compile Include="Defaults\InitialPieceValue.cs" />
     <Compile Include="Defaults\PieceType.cs" />

@@ -1,6 +1,5 @@
 ﻿namespace butnotquite.Engine
 {
-    using Defaults;
     using Models;
 
     internal sealed class Engine
@@ -10,7 +9,8 @@
             Chessboard board = new Chessboard();
 
             board.InitializeStartingPosition();
-            board.GetAvailableMoves(Color.White);
+            board.MakeMove(52, 36);
+            board.GetAvailableMoves();
         }
     }
 }
