@@ -5,29 +5,35 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
+    using System.IO;
+    using System.Runtime.Serialization.Formatters.Binary;
 
     internal sealed class Chessboard
     {
-        internal Square[] Squares;
+        private readonly HashSet<int> InitialPawnSquares = new HashSet<int> { 8, 9, 10, 11, 12, 13, 14, 15, 48, 49, 50, 51, 52, 53, 54, 55 };
+
+        internal Square[] Board;
+        internal Color SideToMove;
+        internal Color OppositeColor;
         internal int Evaluation;
         internal bool KingInCheck;
-        internal int FiftyMoveCounter;
-        internal bool FiftyMoveEnforcable;
-        internal int RepetitionCounter;
-        internal bool RepetitionEnforcable;
         internal bool WhiteCastled;
         internal bool BlackCastled;
+        internal int RepetitionCounter;
+        internal bool RepetitionEnforcable;        
+        internal int FiftyMoveCounter;
+        internal bool FiftyMoveEnforcable;
         internal bool Stalemate;
-        internal bool EnpassantPossible;
+
+        private Move lastMove;
 
         internal Chessboard()
         {
-            this.Squares = new Square[64];
+            this.Board = new Square[64];
 
-            for (int i = 0; i < Squares.Length; i++)
+            for (int i = 0; i < Board.Length; i++)
             {
-                this.Squares[i] = new Square();
+                this.Board[i] = new Square();
             }
         }
 
@@ -48,42 +54,42 @@
             {
                 if (i >= 8)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.Pawn);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Pawn);
 
                     continue;
                 }
 
                 if (i == 0 || i == 7)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.Rook);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Rook);
 
                     continue;
                 }
 
                 if (i == 1 || i == 6)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.Knight);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Knight);
 
                     continue;
                 }
 
                 if (i == 2 || i == 5)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.Bishop);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Bishop);
 
                     continue;
                 }
 
                 if (i == 3)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.Queen);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Queen);
 
                     continue;
                 }
 
                 if (i == 4)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.Black, PieceType.King);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.King);
                 }
             }
         }
@@ -95,7 +101,7 @@
 
             for (int i = blackTerritoryEnd; i <= emptyTerritoryLimit; i++)
             {
-                this.Squares[i].OccupiedBy = new Piece();
+                this.Board[i].OccupiedBy = new Piece();
             }
         }
 
@@ -107,42 +113,42 @@
             {
                 if (i <= 55)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.Pawn);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Pawn);
 
                     continue;
                 }
 
                 if (i == 56 || i == 63)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.Rook);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Rook);
 
                     continue;
                 }
 
                 if (i == 57 || i == 62)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.Knight);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Knight);
 
                     continue;
                 }
 
                 if (i == 58 || i == 61)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.Bishop);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Bishop);
 
                     continue;
                 }
 
                 if (i == 59)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.Queen);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Queen);
 
                     continue;
                 }
 
                 if (i == 60)
                 {
-                    this.Squares[i].OccupiedBy = new Piece(Color.White, PieceType.King);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.King);
                 }
             }
         }
@@ -151,7 +157,20 @@
 
         #region Move Generation
 
-        internal IEnumerable<Move> GetAvailableMoves(Color sideToMove)
+        internal void MakeMove(int fromSquare, int toSquare)
+        {
+            Piece movingPiece = DeepClone(this.Board[fromSquare].OccupiedBy);
+
+            this.Board[fromSquare].OccupiedBy.Type = PieceType.None;
+            this.Board[toSquare].OccupiedBy = movingPiece;
+
+            this.lastMove = new Move(fromSquare, toSquare);
+
+            this.SideToMove = (this.SideToMove == Color.White) ? Color.Black : Color.White;
+            this.OppositeColor = (this.SideToMove == Color.White) ? Color.Black : Color.White;
+        }
+
+        internal IEnumerable<Move> GetAvailableMoves()
         {
             List<Move> availableMoves = new List<Move>(217);
             Stopwatch sw = new Stopwatch();
@@ -160,9 +179,9 @@
 
             for (int i = 0; i < 64; i++)
             {
-                Square square = this.Squares[i];
+                Square square = this.Board[i];
 
-                if (square.OccupiedBy.Color != sideToMove || square.OccupiedBy.Type == PieceType.None)
+                if (square.OccupiedBy.Type == PieceType.None || square.OccupiedBy.Color == this.OppositeColor)
                 {
                     continue;
                 }
@@ -179,10 +198,10 @@
                     case PieceType.None:
                         break;
                     case PieceType.Pawn:
-                        //availableMoves.AddRange(GetPawnMoves(i));
+                        availableMoves.AddRange(GetPawnMoves(i));
                         break;
                     case PieceType.Knight:
-                        //availableMoves.AddRange(GetKnightMoves(i));
+                        availableMoves.AddRange(GetKnightMoves(i));
                         break;
                     case PieceType.Bishop:
                         availableMoves.AddRange(GetBishopMoves(i));
@@ -208,17 +227,16 @@
             return availableMoves;
         }
 
-        #region Directions
+        #region Common Movement Patterns
 
         private IEnumerable<Move> GetMovesUp(int fromSquare)
         {
             List<Move> movesUp = new List<Move>(7);
-            Color currentSideColor = this.Squares[fromSquare].OccupiedBy.Color;
             int topBorder = 0;
 
             for (int location = fromSquare - 8; location >= topBorder; location -= 8)
             {
-                Square square = this.Squares[location];
+                Square square = this.Board[location];
 
                 if (square.OccupiedBy.Type == PieceType.None)
                 {
@@ -227,12 +245,12 @@
                     continue;
                 }
 
-                if (square.OccupiedBy.Color == currentSideColor)
+                if (square.OccupiedBy.Color == this.SideToMove)
                 {
                     break;
                 }
 
-                if (square.OccupiedBy.Color != currentSideColor)
+                if (square.OccupiedBy.Color == this.OppositeColor)
                 {
                     movesUp.Add(new Move(fromSquare, location));
 
@@ -246,12 +264,11 @@
         private IEnumerable<Move> GetMovesDown(int fromSquare)
         {
             List<Move> movesDown = new List<Move>(7);
-            Color currentSideColor = this.Squares[fromSquare].OccupiedBy.Color;
             int bottomBorder = 63;
 
             for (int location = (fromSquare + 8); location <= bottomBorder; location += 8)
             {
-                Square square = this.Squares[location];
+                Square square = this.Board[location];
 
                 if (square.OccupiedBy.Type == PieceType.None)
                 {
@@ -260,12 +277,12 @@
                     continue;
                 }
 
-                if (square.OccupiedBy.Color == currentSideColor)
+                if (square.OccupiedBy.Color == this.SideToMove)
                 {
                     break;
                 }
 
-                if (square.OccupiedBy.Color != currentSideColor)
+                if (square.OccupiedBy.Color == this.OppositeColor)
                 {
                     movesDown.Add(new Move(fromSquare, location));
 
@@ -279,12 +296,11 @@
         private IEnumerable<Move> GetMovesLeft(int fromSquare)
         {
             List<Move> movesLeft = new List<Move>(7);
-            Color currentSideColor = this.Squares[fromSquare].OccupiedBy.Color;
             int leftBorder = fromSquare - (fromSquare % 8);
 
             for (int location = (fromSquare - 1); location >= leftBorder; location--)
             {
-                Square square = this.Squares[location];
+                Square square = this.Board[location];
 
                 if (square.OccupiedBy.Type == PieceType.None)
                 {
@@ -293,12 +309,12 @@
                     continue;
                 }
 
-                if (square.OccupiedBy.Color == currentSideColor)
+                if (square.OccupiedBy.Color == this.SideToMove)
                 {
                     break;
                 }
 
-                if (square.OccupiedBy.Color != currentSideColor)
+                if (square.OccupiedBy.Color == this.OppositeColor)
                 {
                     movesLeft.Add(new Move(fromSquare, location));
 
@@ -312,12 +328,11 @@
         private IEnumerable<Move> GetMovesRight(int fromSquare)
         {
             List<Move> movesRight = new List<Move>(7);
-            Color currentSideColor = this.Squares[fromSquare].OccupiedBy.Color;
             int rightBorder = fromSquare + (7 - fromSquare % 8);
 
             for (int location = (fromSquare + 1); location <= rightBorder; location++)
             {
-                Square square = this.Squares[location];
+                Square square = this.Board[location];
 
                 if (square.OccupiedBy.Type == PieceType.None)
                 {
@@ -326,12 +341,12 @@
                     continue;
                 }
 
-                if (square.OccupiedBy.Color == currentSideColor)
+                if (square.OccupiedBy.Color == this.SideToMove)
                 {
                     break;
                 }
 
-                if (square.OccupiedBy.Color != currentSideColor)
+                if (square.OccupiedBy.Color == this.OppositeColor)
                 {
                     movesRight.Add(new Move(fromSquare, location));
 
@@ -346,13 +361,12 @@
         {
             HashSet<int> northEastBordersAdjusted = new HashSet<int>() { -7, -6, -5, -4, -3, -2, -1, 0, 8, 16, 24, 32, 40, 48, 57 };
             List<Move> movesUpRight = new List<Move>(7);
-            Color currentSideColor = this.Squares[fromSquare].OccupiedBy.Color;
 
             int location = fromSquare - 7;
 
             while (!northEastBordersAdjusted.Contains(location))
             {
-                Square square = this.Squares[location];
+                Square square = this.Board[location];
 
                 if (square.OccupiedBy.Type == PieceType.None)
                 {
@@ -363,12 +377,12 @@
                     continue;
                 }
 
-                if (square.OccupiedBy.Color == currentSideColor)
+                if (square.OccupiedBy.Color == this.SideToMove)
                 {
                     break;
                 }
 
-                if (square.OccupiedBy.Color != currentSideColor)
+                if (square.OccupiedBy.Color == this.OppositeColor)
                 {
                     movesUpRight.Add(new Move(fromSquare, location));
 
@@ -385,13 +399,11 @@
         {
             HashSet<int> southWestBordersAdjusted = new HashSet<int>() { 70, 69, 68, 67, 66, 65, 64, 63, 55, 47, 39, 31, 23, 15, 7 };
             List<Move> movesDownLeft = new List<Move>(7);
-            Color currentSideColor = this.Squares[fromSquare].OccupiedBy.Color;
-
             int location = fromSquare + 7;
 
             while (!southWestBordersAdjusted.Contains(location))
             {
-                Square square = this.Squares[location];
+                Square square = this.Board[location];
 
                 if (square.OccupiedBy.Type == PieceType.None)
                 {
@@ -402,12 +414,12 @@
                     continue;
                 }
 
-                if (square.OccupiedBy.Color == currentSideColor)
+                if (square.OccupiedBy.Color == this.SideToMove)
                 {
                     break;
                 }
 
-                if (square.OccupiedBy.Color != currentSideColor)
+                if (square.OccupiedBy.Color == this.OppositeColor)
                 {
                     movesDownLeft.Add(new Move(fromSquare, location));
 
@@ -424,13 +436,11 @@
         {
             HashSet<int> northWestBordersAdjusted = new HashSet<int>() { 47, 39, 31, 23, 15, 7, -1, -9, -8, -7, -6, -5, -4, -3, -2 };
             List<Move> movesUpLeft = new List<Move>(7);
-            Color currentSideColor = this.Squares[fromSquare].OccupiedBy.Color;
-
             int location = fromSquare - 9;
 
             while (!northWestBordersAdjusted.Contains(location))
             {
-                Square square = this.Squares[location];
+                Square square = this.Board[location];
 
                 if (square.OccupiedBy.Type == PieceType.None)
                 {
@@ -441,12 +451,12 @@
                     continue;
                 }
 
-                if (square.OccupiedBy.Color == currentSideColor)
+                if (square.OccupiedBy.Color == this.SideToMove)
                 {
                     break;
                 }
 
-                if (square.OccupiedBy.Color != currentSideColor)
+                if (square.OccupiedBy.Color == this.OppositeColor)
                 {
                     movesUpLeft.Add(new Move(fromSquare, location));
 
@@ -463,13 +473,11 @@
         {
             HashSet<int> southEastBordersAdjusted = new HashSet<int>() { 16, 24, 32, 40, 48, 56, 64, 72, 71, 70, 69, 68, 67, 66, 65 };
             List<Move> movesDownRight = new List<Move>(7);
-            Color currentSideColor = this.Squares[fromSquare].OccupiedBy.Color;
-
             int location = fromSquare + 9;
 
             while (!southEastBordersAdjusted.Contains(location))
             {
-                Square square = this.Squares[location];
+                Square square = this.Board[location];
 
                 if (square.OccupiedBy.Type == PieceType.None)
                 {
@@ -480,12 +488,12 @@
                     continue;
                 }
 
-                if (square.OccupiedBy.Color == currentSideColor)
+                if (square.OccupiedBy.Color == this.SideToMove)
                 {
                     break;
                 }
 
-                if (square.OccupiedBy.Color != currentSideColor)
+                if (square.OccupiedBy.Color == this.OppositeColor)
                 {
                     movesDownRight.Add(new Move(fromSquare, location));
 
@@ -498,76 +506,9 @@
             return movesDownRight;
         }
 
-        private IEnumerable<Move> GetLMoves(int fromSquare)
-        {
-            List<Move> lMoves = new List<Move>();
-            Color currentSideColor = this.Squares[fromSquare].OccupiedBy.Color;
-
-            // Long is three, short is one
-            int difUpLeftShort = -10;
-            int difUpLeftLong = -17;
-            int difUpRightShort = -6;
-            int difUpRightLong = -15;
-            int difDownRightShort = +10;
-            int difDownRightLong = +17;
-            int difDownLeftShort = +6;
-            int difDownLeftLong = +15; 
-            int[] jumpPositions = new int[] 
-            {
-                difUpLeftShort,
-                difUpLeftLong,
-                difUpRightShort,
-                difUpRightLong,
-                difDownRightShort,
-                difDownRightLong,
-                difDownLeftShort,
-                difDownLeftLong
-            };
-
-            int fromRow = fromSquare / 8;
-
-            for (int i = 0; i < jumpPositions.Length; i++)
-            {
-                int destination = fromSquare + jumpPositions[i];
-
-                if (destination < 0 || destination > 63)
-                {
-                    continue;
-                }
-
-                int destinationRow = destination / 8;
-
-                if (fromRow == destinationRow) // Jumping over the board
-                {
-                    continue;
-                }
-
-                Square square = this.Squares[i];
-
-                if (square.OccupiedBy.Type == PieceType.None)
-                {
-                    lMoves.Add(new Move(fromSquare, i));
-
-                    continue;
-                }
-
-                if (square.OccupiedBy.Color == currentSideColor)
-                {
-                    break;
-                }
-
-                if (square.OccupiedBy.Color != currentSideColor)
-                {
-                    movesRight.Add(new Move(fromSquare, i));
-
-                    break;
-                }
-            }
-
-            return lMoves;
-        }
-
         #endregion
+
+        #region Pieces
 
         private IEnumerable<Move> GetKingMoves(int fromSquare)
         {
@@ -616,18 +557,180 @@
 
         private IEnumerable<Move> GetKnightMoves(int fromSquare)
         {
-            List<Move> knigtMoves = new List<Move>(8);
+            List<Move> knightMoves = new List<Move>();
+            // Long is three, short is one
+            int difUpLeftShort = -10;
+            int difUpLeftLong = -17;
+            int difUpRightShort = -6;
+            int difUpRightLong = -15;
+            int difDownRightShort = +10;
+            int difDownRightLong = +17;
+            int difDownLeftShort = +6;
+            int difDownLeftLong = +15;
+            int[] jumpPositions = new int[8]
+            {
+                difUpLeftShort,
+                difUpLeftLong,
+                difUpRightShort,
+                difUpRightLong,
+                difDownRightShort,
+                difDownRightLong,
+                difDownLeftShort,
+                difDownLeftLong
+            };
+            int fromCol = fromSquare % 8;
 
-            knigtMoves.AddRange(GetLMoves(fromSquare));
+            for (int i = 0; i < jumpPositions.Length; i++)
+            {
+                int destination = fromSquare + jumpPositions[i];
 
-            return knigtMoves;
+                if (destination < 0 || destination > 63)
+                {
+                    continue;
+                }
+
+                int destinationCol = destination % 8;
+
+                if (Math.Abs(destinationCol - fromCol) > 2) // Jumping over the board
+                {
+                    continue;
+                }
+
+                Square square = this.Board[destination];
+
+                if (square.OccupiedBy.Type == PieceType.None)
+                {
+                    knightMoves.Add(new Move(fromSquare, destination));
+
+                    continue;
+                }
+
+                if (square.OccupiedBy.Color == this.OppositeColor)
+                {
+                    knightMoves.Add(new Move(fromSquare, destination));
+                }
+            }
+
+            return knightMoves;
         }
 
         private IEnumerable<Move> GetPawnMoves(int fromSquare)
         {
-            throw new NotImplementedException();
+            List<Move> pawnMoves = new List<Move>(4);
+            int direction = (this.SideToMove == Color.White) ? -1 : 1;
+            int oneForward = fromSquare + (8 * direction);
+            int twoForward = fromSquare + (16 * direction);
+            int captureLeft = fromSquare + (9 * direction);
+            int captureRight = fromSquare + (7 * direction);
+
+            if (this.Board[oneForward].OccupiedBy.Type == PieceType.None)
+            {
+                pawnMoves.Add(new Move(fromSquare, oneForward));
+            }
+
+            if (this.InitialPawnSquares.Contains(fromSquare)
+                && this.Board[fromSquare].OccupiedBy.Color == this.SideToMove)
+            {
+                pawnMoves.Add(new Move(fromSquare, twoForward));
+            }
+
+            if (this.Board[captureLeft].OccupiedBy.Color == this.OppositeColor)
+            {
+                pawnMoves.Add(new Move(fromSquare, captureLeft));
+            }
+
+            if (this.Board[captureRight].OccupiedBy.Color == this.OppositeColor)
+            {
+                pawnMoves.Add(new Move(fromSquare, captureRight));
+            }
+
+            int enPassantSquare = this.GetEnPassantSquare();
+
+            if (enPassantSquare > -1)
+            {
+                pawnMoves.Add(new Move(fromSquare, enPassantSquare));
+            }
+
+            return pawnMoves;
         }
 
-        #endregion        
+        #endregion
+
+        #region Special Cases
+
+        private int GetEnPassantSquare()
+        {
+            int fromSquare = this.lastMove.FromSquare;
+            int toSquare = this.lastMove.ToSquare;
+            Piece lastMovedPiece = this.Board[toSquare].OccupiedBy;
+
+            if (lastMovedPiece.Type == PieceType.Pawn)
+            {
+                if (this.InitialPawnSquares.Contains(fromSquare))
+                {
+                    int moveDirection = (lastMovedPiece.Color == Color.White) ? -1 : 1;
+                    int twoForward = fromSquare + (16 * moveDirection);
+
+                    if (this.lastMove.ToSquare == twoForward)
+                    {
+                        int currentCol = toSquare % 8;
+                        int twoForwardOneLeft = twoForward - 1;
+                        int twoForwardOneRight = twoForward + 1;
+                        int twoForwardOneLeftCol = twoForwardOneLeft % 8;
+                        int twoForwardOneRightCol = twoForwardOneRight % 8;
+                        int leftDif = Math.Abs(twoForwardOneLeftCol - currentCol);
+                        int rightDif = Math.Abs(twoForwardOneRightCol - currentCol);
+                        bool enPassantPossible = false;
+
+                        if (leftDif == 1) // A flank pawn hasn't been pushed
+                        {
+                            if (this.Board[twoForwardOneLeft].OccupiedBy.Type == PieceType.Pawn)
+                            {
+                                enPassantPossible = true;
+                            }
+                        }
+
+                        if (rightDif == 1)
+                        {
+                            if (this.Board[twoForwardOneRight].OccupiedBy.Type == PieceType.Pawn)
+                            {
+                                enPassantPossible = true;
+                            }
+                        }
+
+                        if (enPassantPossible)
+                        {
+                            int enPassantSquare = fromSquare + (8 * moveDirection);
+
+                            return enPassantSquare;
+                        }
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Utils
+
+        private static T DeepClone<T>(T obj)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+
+                formatter.Serialize(ms, obj);
+
+                ms.Position = 0;
+
+                return (T)formatter.Deserialize(ms);
+            }
+        }
+
+        #endregion
     }
 }

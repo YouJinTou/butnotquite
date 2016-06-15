@@ -2,8 +2,10 @@
 {
     using Defaults;
 
+    using System;
     using System.Collections.Generic;
 
+    [Serializable]
     internal class Piece
     {
         internal Color Color;
