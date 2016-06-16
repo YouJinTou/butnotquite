@@ -16,9 +16,14 @@
         internal Color SideToMove;
         internal Color OppositeColor;
         internal int Evaluation;
-        internal bool KingInCheck;
+
+        internal HashSet<int> OpponentControl;
+
+        internal int WhiteKingPosition;
+        internal int BlackKingPosition;
         internal bool WhiteCastled;
         internal bool BlackCastled;
+
         internal int RepetitionCounter;
         internal bool RepetitionEnforcable;        
         internal int FiftyMoveCounter;
@@ -35,6 +40,14 @@
             {
                 this.Board[i] = new Square();
             }
+
+            this.SideToMove = Color.White;
+            this.OppositeColor = Color.Black;
+
+            this.WhiteKingPosition = 60;
+            this.BlackKingPosition = 4;
+
+            this.OpponentControl = new HashSet<int>();
         }
 
         #region Board Initialization
@@ -159,7 +172,7 @@
 
         internal void MakeMove(int fromSquare, int toSquare)
         {
-            Piece movingPiece = DeepClone(this.Board[fromSquare].OccupiedBy);
+            Piece movingPiece = MakeDeepCopy(this.Board[fromSquare].OccupiedBy);
 
             this.Board[fromSquare].OccupiedBy.Type = PieceType.None;
             this.Board[toSquare].OccupiedBy = movingPiece;
@@ -186,7 +199,7 @@
                     continue;
                 }
 
-                if (this.KingInCheck)
+                if (this.KingIsInCheck())
                 {
                     // TODO
 
@@ -213,7 +226,7 @@
                         availableMoves.AddRange(GetQueenMoves(i));
                         break;
                     case PieceType.King:
-                        //availableMoves.AddRange(GetKingMoves(i));
+                        availableMoves.AddRange(GetKingMoves(i));
                         break;
                     default:
                         break;
@@ -223,6 +236,13 @@
             sw.Stop();
 
             Console.WriteLine(sw.Elapsed);
+
+            this.OpponentControl.Clear();
+
+            for (int i = 0; i < availableMoves.Count; i++)
+            {
+                this.OpponentControl.Add(availableMoves[i].ToSquare);
+            }
 
             return availableMoves;
         }
@@ -512,7 +532,77 @@
 
         private IEnumerable<Move> GetKingMoves(int fromSquare)
         {
-            throw new NotImplementedException();
+            List<Move> kingMoves = new List<Move>();            
+
+            if (this.CanCastleShort())
+            {
+                int kingFromSquare = fromSquare;
+                int kingDestination = (this.SideToMove == Color.White) ? 62 : 6;
+                int rookFromSquare = (fromSquare == 60) ? 63 : 7;
+                int rookDestination = (kingDestination == 62) ? 61 : 5;
+
+                kingMoves.Add(new Move(kingFromSquare, kingDestination, rookFromSquare, rookDestination));
+            }
+
+            if (this.CanCastleLong())
+            {
+                int kingFromSquare = fromSquare;
+                int kingDestination = (this.SideToMove == Color.White) ? 62 : 6;
+                int rookFromSquare = (fromSquare == 60) ? 63 : 7;
+                int rookDestination = (kingDestination == 62) ? 61 : 5;
+
+                kingMoves.Add(new Move(kingFromSquare, kingDestination, rookFromSquare, rookDestination));
+            }
+
+            int currentKingPosition = this.GetKingPosition();
+            int upLeft = currentKingPosition - 9;
+            int up = currentKingPosition - 8;
+            int upRight = currentKingPosition - 7;
+            int right = currentKingPosition + 1;
+            int downRight = currentKingPosition + 9;
+            int down = currentKingPosition + 8;
+            int downLeft = currentKingPosition + 7;
+            int left = currentKingPosition - 1;
+            int[] kingMovePositions = new int[8]
+            {
+                upLeft, up, upRight, right, downRight, down, downLeft, left
+            };
+
+            for (int i = 0; i < kingMovePositions.Length; i++)
+            {
+                int squareValue = kingMovePositions[i];
+
+                if (squareValue < 0 || squareValue > 63)
+                {
+                    continue;
+                }
+
+                Square square = this.Board[squareValue];
+
+                if (square.OccupiedBy.Color == this.SideToMove)
+                {
+                    continue;
+                }
+
+                if (this.OpponentControl.Contains(squareValue))
+                {
+                    continue;
+                }
+
+                if (square.OccupiedBy.Type == PieceType.None)
+                {
+                    kingMoves.Add(new Move(fromSquare, squareValue));
+
+                    continue;
+                }
+
+                if (square.OccupiedBy.Color == this.OppositeColor)
+                {
+                    kingMoves.Add(new Move(fromSquare, squareValue));
+                }
+            }
+
+            return kingMoves;
         }
 
         private IEnumerable<Move> GetQueenMoves(int fromSquare)
@@ -626,6 +716,12 @@
             if (this.Board[oneForward].OccupiedBy.Type == PieceType.None)
             {
                 pawnMoves.Add(new Move(fromSquare, oneForward));
+
+                if (this.IsPawnPromotion(oneForward))
+                {
+                    pawnMoves.Add(new Move(fromSquare, oneForward, new Piece(this.SideToMove, PieceType.Queen)));
+                    pawnMoves.Add(new Move(fromSquare, oneForward, new Piece(this.SideToMove, PieceType.Knight)));
+                }
             }
 
             if (this.InitialPawnSquares.Contains(fromSquare)
@@ -637,11 +733,23 @@
             if (this.Board[captureLeft].OccupiedBy.Color == this.OppositeColor)
             {
                 pawnMoves.Add(new Move(fromSquare, captureLeft));
+
+                if (this.IsPawnPromotion(captureLeft))
+                {
+                    pawnMoves.Add(new Move(fromSquare, captureLeft, new Piece(this.SideToMove, PieceType.Queen)));
+                    pawnMoves.Add(new Move(fromSquare, captureLeft, new Piece(this.SideToMove, PieceType.Knight)));
+                }
             }
 
             if (this.Board[captureRight].OccupiedBy.Color == this.OppositeColor)
             {
                 pawnMoves.Add(new Move(fromSquare, captureRight));
+
+                if (this.IsPawnPromotion(captureRight))
+                {
+                    pawnMoves.Add(new Move(fromSquare, captureRight, new Piece(this.SideToMove, PieceType.Queen)));
+                    pawnMoves.Add(new Move(fromSquare, captureRight, new Piece(this.SideToMove, PieceType.Knight)));
+                }
             }
 
             int enPassantSquare = this.GetEnPassantSquare();
@@ -657,6 +765,98 @@
         #endregion
 
         #region Special Cases
+
+        private bool CanCastleShort()
+        {
+            if (this.SideToMove == Color.White)
+            {
+                if (this.WhiteCastled || this.KingIsInCheck() || this.WhiteKingPosition != 60)
+                {
+                    return false;
+                }
+
+                int[] whiteShortCastleSquares = new int[2] { 61, 62 };
+
+                for (int i = 0; i < whiteShortCastleSquares.Length; i++)
+                {
+                    if (this.Board[whiteShortCastleSquares[i]].OccupiedBy.Type != PieceType.None
+                        || this.OpponentControl.Contains(whiteShortCastleSquares[i]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            if (this.BlackCastled || this.KingIsInCheck() || this.BlackKingPosition != 4)
+            {
+                return false;
+            }
+
+            int[] blackShortCastleSquares = new int[2] { 5, 6 };
+
+            for (int i = 0; i < blackShortCastleSquares.Length; i++)
+            {
+                if (this.Board[blackShortCastleSquares[i]].OccupiedBy.Type != PieceType.None
+                    || this.OpponentControl.Contains(blackShortCastleSquares[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool CanCastleLong()
+        {
+            if (this.SideToMove == Color.White)
+            {
+                if (this.WhiteCastled || this.KingIsInCheck() || this.WhiteKingPosition != 60)
+                {
+                    return false;
+                }
+
+                int[] whiteLongCastleSquares = new int[3] { 57, 58, 59 };
+
+                this.OpponentControl.Remove(57); // We can still castle if this square is being controlled
+
+                for (int i = 0; i < whiteLongCastleSquares.Length; i++)
+                {
+                    if (this.Board[whiteLongCastleSquares[i]].OccupiedBy.Type != PieceType.None
+                        || this.OpponentControl.Contains(whiteLongCastleSquares[i]))
+                    {
+                        return false;
+                    }
+                }
+
+                this.OpponentControl.Add(57);
+
+                return true;
+            }
+
+            if (this.BlackCastled || this.KingIsInCheck() || this.BlackKingPosition != 4)
+            {
+                return false;
+            }
+
+            this.OpponentControl.Remove(1);
+
+            int[] blackLongCastleSquares = new int[3] { 1, 2, 3 };
+
+            for (int i = 0; i < blackLongCastleSquares.Length; i++)
+            {
+                if (this.Board[blackLongCastleSquares[i]].OccupiedBy.Type != PieceType.None
+                    || this.OpponentControl.Contains(blackLongCastleSquares[i]))
+                {
+                    return false;
+                }
+            }
+
+            this.OpponentControl.Add(1);
+
+            return true;
+        }
 
         private int GetEnPassantSquare()
         {
@@ -711,13 +911,32 @@
             return -1;
         }
 
+        private bool IsPawnPromotion(int toSquare)
+        {
+            return (toSquare < 8 || toSquare > 55);
+        }
+
         #endregion
 
         #endregion
 
         #region Utils
 
-        private static T DeepClone<T>(T obj)
+        private bool KingIsInCheck()
+        {
+            return (this.SideToMove == Color.White) ?
+                this.OpponentControl.Contains(this.WhiteKingPosition) :
+                this.OpponentControl.Contains(this.BlackKingPosition);
+        }
+        
+        private int GetKingPosition()
+        {
+            return (this.SideToMove == Color.White) ? 
+                this.WhiteKingPosition : 
+                this.BlackKingPosition;
+        }
+
+        private static T MakeDeepCopy<T>(T obj)
         {
             using (MemoryStream ms = new MemoryStream())
             {

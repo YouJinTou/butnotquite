@@ -9,6 +9,7 @@
             Chessboard board = new Chessboard();
 
             board.InitializeStartingPosition();
+            board.GetAvailableMoves();
             board.MakeMove(52, 36);
             board.GetAvailableMoves();
         }
