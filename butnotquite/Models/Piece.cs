@@ -6,11 +6,12 @@
     using System.Collections.Generic;
 
     [Serializable]
-    internal class Piece
+    internal sealed class Piece : IComparable<Piece>
     {
         internal Color Color;
         internal PieceType Type;
         internal int Value;
+        internal int Position;
         internal HashSet<int> Moves;
         internal bool Pinned;
 
@@ -18,13 +19,15 @@
         {
             this.Type = PieceType.None;
             this.Color = Color.None;
+            this.Position = -1;
         }
 
-        internal Piece(Color color, PieceType type)
+        internal Piece(Color color, PieceType type, int position)
         {
             this.Color = color;
             this.Type = type;
             this.Value = AssignInitialValue(type);
+            this.Position = position;
         }
 
         private int AssignInitialValue(PieceType type)
@@ -46,6 +49,11 @@
                 default:
                     return 0;
             }
+        }
+
+        public int CompareTo(Piece other)
+        {
+            return this.Position.CompareTo(other.Position);
         }
     }
 }

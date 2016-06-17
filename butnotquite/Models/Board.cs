@@ -1,12 +1,12 @@
 ﻿namespace butnotquite.Models
 {
     using Defaults;
+    using Utils;
 
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Linq;
 
     internal sealed class Chessboard
     {
@@ -17,7 +17,7 @@
         internal Color OppositeColor;
         internal int Evaluation;
 
-        internal HashSet<int> OpponentControl;
+        internal IDictionary<Piece, HashSet<int>> OpponentControl;
 
         internal int WhiteKingPosition;
         internal int BlackKingPosition;
@@ -25,7 +25,7 @@
         internal bool BlackCastled;
 
         internal int RepetitionCounter;
-        internal bool RepetitionEnforcable;        
+        internal bool RepetitionEnforcable;
         internal int FiftyMoveCounter;
         internal bool FiftyMoveEnforcable;
         internal bool Stalemate;
@@ -47,7 +47,7 @@
             this.WhiteKingPosition = 60;
             this.BlackKingPosition = 4;
 
-            this.OpponentControl = new HashSet<int>();
+            this.OpponentControl = new Dictionary<Piece, HashSet<int>>(16);
         }
 
         #region Board Initialization
@@ -67,42 +67,42 @@
             {
                 if (i >= 8)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Pawn);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Pawn, i);
 
                     continue;
                 }
 
                 if (i == 0 || i == 7)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Rook);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Rook, i);
 
                     continue;
                 }
 
                 if (i == 1 || i == 6)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Knight);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Knight, i);
 
                     continue;
                 }
 
                 if (i == 2 || i == 5)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Bishop);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Bishop, i);
 
                     continue;
                 }
 
                 if (i == 3)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Queen);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.Queen, i);
 
                     continue;
                 }
 
                 if (i == 4)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.King);
+                    this.Board[i].OccupiedBy = new Piece(Color.Black, PieceType.King, i);
                 }
             }
         }
@@ -126,42 +126,42 @@
             {
                 if (i <= 55)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Pawn);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Pawn, i);
 
                     continue;
                 }
 
                 if (i == 56 || i == 63)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Rook);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Rook, i);
 
                     continue;
                 }
 
                 if (i == 57 || i == 62)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Knight);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Knight, i);
 
                     continue;
                 }
 
                 if (i == 58 || i == 61)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Bishop);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Bishop, i);
 
                     continue;
                 }
 
                 if (i == 59)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Queen);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.Queen, i);
 
                     continue;
                 }
 
                 if (i == 60)
                 {
-                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.King);
+                    this.Board[i].OccupiedBy = new Piece(Color.White, PieceType.King, i);
                 }
             }
         }
@@ -172,10 +172,11 @@
 
         internal void MakeMove(int fromSquare, int toSquare)
         {
-            Piece movingPiece = MakeDeepCopy(this.Board[fromSquare].OccupiedBy);
+            Piece movingPiece = Utils.MakeDeepCopy(this.Board[fromSquare].OccupiedBy);
 
-            this.Board[fromSquare].OccupiedBy.Type = PieceType.None;
+            this.ResetSquare(fromSquare);
             this.Board[toSquare].OccupiedBy = movingPiece;
+            movingPiece.Position = toSquare;
 
             this.lastMove = new Move(fromSquare, toSquare);
 
@@ -237,12 +238,7 @@
 
             Console.WriteLine(sw.Elapsed);
 
-            this.OpponentControl.Clear();
-
-            for (int i = 0; i < availableMoves.Count; i++)
-            {
-                this.OpponentControl.Add(availableMoves[i].ToSquare);
-            }
+            this.GetOpponentMoves(availableMoves);
 
             return availableMoves;
         }
@@ -532,7 +528,7 @@
 
         private IEnumerable<Move> GetKingMoves(int fromSquare)
         {
-            List<Move> kingMoves = new List<Move>();            
+            List<Move> kingMoves = new List<Move>();
 
             if (this.CanCastleShort())
             {
@@ -584,7 +580,7 @@
                     continue;
                 }
 
-                if (this.OpponentControl.Contains(squareValue))
+                if (this.OpponentControl.Any(kvp => kvp.Value.Contains(squareValue)))
                 {
                     continue;
                 }
@@ -653,10 +649,10 @@
             int difUpLeftLong = -17;
             int difUpRightShort = -6;
             int difUpRightLong = -15;
-            int difDownRightShort = +10;
-            int difDownRightLong = +17;
-            int difDownLeftShort = +6;
-            int difDownLeftLong = +15;
+            int difDownRightShort = 10;
+            int difDownRightLong = 17;
+            int difDownLeftShort = 6;
+            int difDownLeftLong = 15;
             int[] jumpPositions = new int[8]
             {
                 difUpLeftShort,
@@ -719,8 +715,8 @@
 
                 if (this.IsPawnPromotion(oneForward))
                 {
-                    pawnMoves.Add(new Move(fromSquare, oneForward, new Piece(this.SideToMove, PieceType.Queen)));
-                    pawnMoves.Add(new Move(fromSquare, oneForward, new Piece(this.SideToMove, PieceType.Knight)));
+                    pawnMoves.Add(new Move(fromSquare, oneForward, new Piece(this.SideToMove, PieceType.Queen, oneForward)));
+                    pawnMoves.Add(new Move(fromSquare, oneForward, new Piece(this.SideToMove, PieceType.Knight, oneForward)));
                 }
             }
 
@@ -736,8 +732,8 @@
 
                 if (this.IsPawnPromotion(captureLeft))
                 {
-                    pawnMoves.Add(new Move(fromSquare, captureLeft, new Piece(this.SideToMove, PieceType.Queen)));
-                    pawnMoves.Add(new Move(fromSquare, captureLeft, new Piece(this.SideToMove, PieceType.Knight)));
+                    pawnMoves.Add(new Move(fromSquare, captureLeft, new Piece(this.SideToMove, PieceType.Queen, captureLeft)));
+                    pawnMoves.Add(new Move(fromSquare, captureLeft, new Piece(this.SideToMove, PieceType.Knight, captureLeft)));
                 }
             }
 
@@ -747,8 +743,8 @@
 
                 if (this.IsPawnPromotion(captureRight))
                 {
-                    pawnMoves.Add(new Move(fromSquare, captureRight, new Piece(this.SideToMove, PieceType.Queen)));
-                    pawnMoves.Add(new Move(fromSquare, captureRight, new Piece(this.SideToMove, PieceType.Knight)));
+                    pawnMoves.Add(new Move(fromSquare, captureRight, new Piece(this.SideToMove, PieceType.Queen, captureRight)));
+                    pawnMoves.Add(new Move(fromSquare, captureRight, new Piece(this.SideToMove, PieceType.Knight, captureRight)));
                 }
             }
 
@@ -780,7 +776,7 @@
                 for (int i = 0; i < whiteShortCastleSquares.Length; i++)
                 {
                     if (this.Board[whiteShortCastleSquares[i]].OccupiedBy.Type != PieceType.None
-                        || this.OpponentControl.Contains(whiteShortCastleSquares[i]))
+                        || this.OpponentControl.Any(kvp => kvp.Value.Contains(whiteShortCastleSquares[i])))
                     {
                         return false;
                     }
@@ -799,7 +795,7 @@
             for (int i = 0; i < blackShortCastleSquares.Length; i++)
             {
                 if (this.Board[blackShortCastleSquares[i]].OccupiedBy.Type != PieceType.None
-                    || this.OpponentControl.Contains(blackShortCastleSquares[i]))
+                    || this.OpponentControl.Any(kvp => kvp.Value.Contains(blackShortCastleSquares[i])))
                 {
                     return false;
                 }
@@ -817,20 +813,24 @@
                     return false;
                 }
 
-                int[] whiteLongCastleSquares = new int[3] { 57, 58, 59 };
+                List<int> whiteLongCastleSquares = new List<int>(3) { 57, 58, 59 };
 
-                this.OpponentControl.Remove(57); // We can still castle if this square is being controlled
-
-                for (int i = 0; i < whiteLongCastleSquares.Length; i++)
+                for (int i = 0; i < whiteLongCastleSquares.Count; i++)
                 {
-                    if (this.Board[whiteLongCastleSquares[i]].OccupiedBy.Type != PieceType.None
-                        || this.OpponentControl.Contains(whiteLongCastleSquares[i]))
+                    if (this.Board[whiteLongCastleSquares[i]].OccupiedBy.Type != PieceType.None)
                     {
                         return false;
                     }
-                }
 
-                this.OpponentControl.Add(57);
+                    whiteLongCastleSquares.Remove(57); // We can still castle if this square is being controlled
+
+                    if (this.OpponentControl.Any(kvp => kvp.Value.Contains(whiteLongCastleSquares[i])))
+                    {
+                        return false;
+                    }
+
+                    whiteLongCastleSquares.Add(57);
+                }
 
                 return true;
             }
@@ -840,20 +840,24 @@
                 return false;
             }
 
-            this.OpponentControl.Remove(1);
+            List<int> blackLongCastleSquares = new List<int>(3) { 1, 2, 3 };
 
-            int[] blackLongCastleSquares = new int[3] { 1, 2, 3 };
-
-            for (int i = 0; i < blackLongCastleSquares.Length; i++)
+            for (int i = 0; i < blackLongCastleSquares.Count; i++)
             {
-                if (this.Board[blackLongCastleSquares[i]].OccupiedBy.Type != PieceType.None
-                    || this.OpponentControl.Contains(blackLongCastleSquares[i]))
+                if (this.Board[blackLongCastleSquares[i]].OccupiedBy.Type != PieceType.None)
                 {
                     return false;
                 }
-            }
 
-            this.OpponentControl.Add(1);
+                blackLongCastleSquares.Remove(1);
+
+                if (this.OpponentControl.Any(kvp => kvp.Value.Contains(blackLongCastleSquares[i])))
+                {
+                    return false;
+                }
+
+                blackLongCastleSquares.Add(1);
+            }
 
             return true;
         }
@@ -925,29 +929,153 @@
         private bool KingIsInCheck()
         {
             return (this.SideToMove == Color.White) ?
-                this.OpponentControl.Contains(this.WhiteKingPosition) :
-                this.OpponentControl.Contains(this.BlackKingPosition);
+                this.OpponentControl.Any(kvp => kvp.Value.Contains(this.WhiteKingPosition)) :
+                this.OpponentControl.Any(kvp => kvp.Value.Contains(this.BlackKingPosition));
         }
-        
+
         private int GetKingPosition()
         {
-            return (this.SideToMove == Color.White) ? 
-                this.WhiteKingPosition : 
+            return (this.SideToMove == Color.White) ?
+                this.WhiteKingPosition :
                 this.BlackKingPosition;
         }
 
-        private static T MakeDeepCopy<T>(T obj)
+        private void GetOpponentMoves(IList<Move> availableMoves)
         {
-            using (MemoryStream ms = new MemoryStream())
+            this.OpponentControl.Clear();
+
+            for (int i = 0; i < availableMoves.Count; i++)
             {
-                BinaryFormatter formatter = new BinaryFormatter();
+                Square currentSquare = this.Board[availableMoves[i].FromSquare];
 
-                formatter.Serialize(ms, obj);
+                if (!this.OpponentControl.ContainsKey(currentSquare.OccupiedBy))
+                {
+                    this.OpponentControl[currentSquare.OccupiedBy] = new HashSet<int>();
+                }
 
-                ms.Position = 0;
-
-                return (T)formatter.Deserialize(ms);
+                this.OpponentControl[currentSquare.OccupiedBy].Add(availableMoves[i].ToSquare);
             }
+        }
+
+        private string[] GetPinDirections(int fromSquare)
+        {
+            if (!this.OpponentControl.Any(kvp =>
+            (
+                kvp.Key.Type == PieceType.Queen ||
+                kvp.Key.Type == PieceType.Rook ||
+                kvp.Key.Type == PieceType.Bishop)
+                && kvp.Value.Contains(fromSquare)))
+            {
+                return null;
+            }
+
+            int kingPosition = this.GetKingPosition();
+            int kingRow = kingPosition / 8;
+            int kingCol = kingPosition % 8;
+            int pieceRow = fromSquare / 8;
+            int pieceCol = fromSquare % 8;
+            bool horizontalPinPossible = false;
+            bool verticalPinPossible = false;
+            bool diagonalPinPossible = false;
+            bool[] possiblePins = new bool[3] { horizontalPinPossible, verticalPinPossible, diagonalPinPossible };
+
+            if (kingRow == pieceRow)
+            {
+                horizontalPinPossible = true;
+            }
+
+            if (kingCol == pieceCol)
+            {
+                horizontalPinPossible = true;
+            }
+
+            if (Math.Abs(kingRow - kingCol) == Math.Abs(pieceRow - pieceCol))
+            {
+                diagonalPinPossible = true;
+            }
+
+            if (possiblePins.All(pinIsPossible => !pinIsPossible))
+            {
+                return null;
+            }
+
+            List<string> pinDirections = new List<string>(8);
+
+            for (int i = 0; i < possiblePins.Length; i++)
+            {
+                if (possiblePins[i])
+                {
+                    switch (i)
+                    {
+                        case 0: // Vertical, same row, so piece can't move up or down
+                            if (this.EmptySquaresBetweenKingAndPiece("vertical", fromSquare, kingPosition))
+                            {
+                                pinDirections.Add("vertical");
+                            }
+                            break;
+                        case 1: // Horizontal, same file, so piece can't move left or right
+                            if (this.EmptySquaresBetweenKingAndPiece("horizontal", fromSquare, kingPosition))
+                            {
+                                pinDirections.Add("horizontal");
+                            }
+                            break;
+                        case 2: // Diagonal, 
+                            if (this.EmptySquaresBetweenKingAndPiece("diagonal", fromSquare, kingPosition))
+                            {
+                                pinDirections.Add("diagonal");
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private bool EmptySquaresBetweenKingAndPiece(string direction, int fromSquare, int kingPosition)
+        {
+            int difference = Math.Abs(fromSquare - kingPosition);
+            int minSquare = Math.Min(fromSquare, kingPosition);
+            int maxSquare = Math.Max(fromSquare, kingPosition);
+            int increment = 0;
+
+            switch (direction)
+            {
+                case "vertical":
+                    increment = 1;
+                    break;
+                case "horizontal":
+                    increment = 8;
+                    break;
+                case "diagonal":
+                    increment = difference;
+                    break;
+                default:
+                    break;
+            }
+
+            for (int i = minSquare; i < maxSquare; i += increment)
+            {
+                if (this.Board[i].OccupiedBy.Type != PieceType.None)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void ResetSquare(int squareNumber)
+        {
+            Square square = this.Board[squareNumber];
+
+            square.OccupiedBy.Type = PieceType.None;
+            square.OccupiedBy.Color = Color.None;
+            square.OccupiedBy.Value = 0;
+            square.OccupiedBy.Position = -1;
+            square.OccupiedBy.Moves = null;
         }
 
         #endregion

@@ -4,7 +4,9 @@
     {
         internal int FromSquare;
         internal int ToSquare;
+
         internal Piece PromotionPiece;
+
         internal int KingFromSquare;
         internal int KingToSquare;
         internal int RookFromSquare;
