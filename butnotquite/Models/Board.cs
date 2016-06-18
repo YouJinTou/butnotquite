@@ -47,7 +47,7 @@
             this.WhiteKingPosition = 60;
             this.BlackKingPosition = 4;
 
-            this.OpponentControl = new Dictionary<Piece, HashSet<int>>(16);
+            this.OpponentControl = new Dictionary<Piece, HashSet<int>>(30);
         }
 
         #region Board Initialization
@@ -186,7 +186,7 @@
 
         internal IEnumerable<Move> GetAvailableMoves()
         {
-            List<Move> availableMoves = new List<Move>(217);
+            List<Move> availableMoves = new List<Move>(300);
             Stopwatch sw = new Stopwatch();
 
             sw.Start();
@@ -247,7 +247,7 @@
 
         private IEnumerable<Move> GetMovesUp(int fromSquare)
         {
-            List<Move> movesUp = new List<Move>(7);
+            List<Move> movesUp = new List<Move>(11);
             int topBorder = 0;
 
             for (int location = fromSquare - 8; location >= topBorder; location -= 8)
@@ -279,7 +279,7 @@
 
         private IEnumerable<Move> GetMovesDown(int fromSquare)
         {
-            List<Move> movesDown = new List<Move>(7);
+            List<Move> movesDown = new List<Move>(11);
             int bottomBorder = 63;
 
             for (int location = (fromSquare + 8); location <= bottomBorder; location += 8)
@@ -311,7 +311,7 @@
 
         private IEnumerable<Move> GetMovesLeft(int fromSquare)
         {
-            List<Move> movesLeft = new List<Move>(7);
+            List<Move> movesLeft = new List<Move>(11);
             int leftBorder = fromSquare - (fromSquare % 8);
 
             for (int location = (fromSquare - 1); location >= leftBorder; location--)
@@ -343,7 +343,7 @@
 
         private IEnumerable<Move> GetMovesRight(int fromSquare)
         {
-            List<Move> movesRight = new List<Move>(7);
+            List<Move> movesRight = new List<Move>(11);
             int rightBorder = fromSquare + (7 - fromSquare % 8);
 
             for (int location = (fromSquare + 1); location <= rightBorder; location++)
@@ -376,7 +376,7 @@
         private IEnumerable<Move> GetMovesUpRightDiagonal(int fromSquare)
         {
             HashSet<int> northEastBordersAdjusted = new HashSet<int>() { -7, -6, -5, -4, -3, -2, -1, 0, 8, 16, 24, 32, 40, 48, 57 };
-            List<Move> movesUpRight = new List<Move>(7);
+            List<Move> movesUpRight = new List<Move>(11);
 
             int location = fromSquare - 7;
 
@@ -414,7 +414,7 @@
         private IEnumerable<Move> GetMovesDownLeftDiagonal(int fromSquare)
         {
             HashSet<int> southWestBordersAdjusted = new HashSet<int>() { 70, 69, 68, 67, 66, 65, 64, 63, 55, 47, 39, 31, 23, 15, 7 };
-            List<Move> movesDownLeft = new List<Move>(7);
+            List<Move> movesDownLeft = new List<Move>(11);
             int location = fromSquare + 7;
 
             while (!southWestBordersAdjusted.Contains(location))
@@ -451,7 +451,7 @@
         private IEnumerable<Move> GetMovesUpLeftDiagonal(int fromSquare)
         {
             HashSet<int> northWestBordersAdjusted = new HashSet<int>() { 47, 39, 31, 23, 15, 7, -1, -9, -8, -7, -6, -5, -4, -3, -2 };
-            List<Move> movesUpLeft = new List<Move>(7);
+            List<Move> movesUpLeft = new List<Move>(11);
             int location = fromSquare - 9;
 
             while (!northWestBordersAdjusted.Contains(location))
@@ -488,7 +488,7 @@
         private IEnumerable<Move> GetMovesDownRightDiagonal(int fromSquare)
         {
             HashSet<int> southEastBordersAdjusted = new HashSet<int>() { 16, 24, 32, 40, 48, 56, 64, 72, 71, 70, 69, 68, 67, 66, 65 };
-            List<Move> movesDownRight = new List<Move>(7);
+            List<Move> movesDownRight = new List<Move>(11);
             int location = fromSquare + 9;
 
             while (!southEastBordersAdjusted.Contains(location))
@@ -603,47 +603,85 @@
 
         private IEnumerable<Move> GetQueenMoves(int fromSquare)
         {
-            List<Move> queenMoves = new List<Move>(24);
+            List<Move> queenMoves = new List<Move>(35);
+            HashSet<string> illegalDirections = this.GetIllegalDirections(fromSquare);
 
-            queenMoves.AddRange(GetMovesUp(fromSquare));
-            queenMoves.AddRange(GetMovesDown(fromSquare));
-            queenMoves.AddRange(GetMovesLeft(fromSquare));
-            queenMoves.AddRange(GetMovesRight(fromSquare));
-            queenMoves.AddRange(GetMovesUpRightDiagonal(fromSquare));
-            queenMoves.AddRange(GetMovesDownLeftDiagonal(fromSquare));
-            queenMoves.AddRange(GetMovesUpLeftDiagonal(fromSquare));
-            queenMoves.AddRange(GetMovesDownRightDiagonal(fromSquare));
+            if (!illegalDirections.Contains("vertical"))
+            {
+                queenMoves.AddRange(GetMovesUp(fromSquare));
+                queenMoves.AddRange(GetMovesDown(fromSquare));
+            }
+
+            if (!illegalDirections.Contains("horizontal"))
+            {
+                queenMoves.AddRange(GetMovesLeft(fromSquare));
+                queenMoves.AddRange(GetMovesRight(fromSquare));
+            }
+
+            if (!illegalDirections.Contains("down-left-up-right"))
+            {
+                queenMoves.AddRange(GetMovesDownLeftDiagonal(fromSquare));
+                queenMoves.AddRange(GetMovesUpRightDiagonal(fromSquare));
+            }
+
+            if (!illegalDirections.Contains("down-right-up-left"))
+            {
+                queenMoves.AddRange(GetMovesDownRightDiagonal(fromSquare));
+                queenMoves.AddRange(GetMovesUpLeftDiagonal(fromSquare));
+            }
 
             return queenMoves;
         }
 
         private IEnumerable<Move> GetRookMoves(int fromSquare)
         {
-            List<Move> rookMoves = new List<Move>(14);
+            List<Move> rookMoves = new List<Move>(20);
+            HashSet<string> illegalDirections = this.GetIllegalDirections(fromSquare);
 
-            rookMoves.AddRange(GetMovesUp(fromSquare));
-            rookMoves.AddRange(GetMovesDown(fromSquare));
-            rookMoves.AddRange(GetMovesLeft(fromSquare));
-            rookMoves.AddRange(GetMovesRight(fromSquare));
+            if (!illegalDirections.Contains("vertical"))
+            {
+                rookMoves.AddRange(GetMovesUp(fromSquare));
+                rookMoves.AddRange(GetMovesDown(fromSquare));
+            }
+
+            if (!illegalDirections.Contains("horizontal"))
+            {
+                rookMoves.AddRange(GetMovesLeft(fromSquare));
+                rookMoves.AddRange(GetMovesRight(fromSquare));
+            }
 
             return rookMoves;
         }
 
         private IEnumerable<Move> GetBishopMoves(int fromSquare)
         {
-            List<Move> bishopMoves = new List<Move>(13);
+            List<Move> bishopMoves = new List<Move>(20);
+            HashSet<string> illegalDirections = this.GetIllegalDirections(fromSquare);
 
-            bishopMoves.AddRange(GetMovesUpRightDiagonal(fromSquare));
-            bishopMoves.AddRange(GetMovesDownLeftDiagonal(fromSquare));
-            bishopMoves.AddRange(GetMovesUpLeftDiagonal(fromSquare));
-            bishopMoves.AddRange(GetMovesDownRightDiagonal(fromSquare));
+            if (!illegalDirections.Contains("down-left-up-right"))
+            {
+                bishopMoves.AddRange(GetMovesDownLeftDiagonal(fromSquare));
+                bishopMoves.AddRange(GetMovesUpRightDiagonal(fromSquare));
+            }
+
+            if (!illegalDirections.Contains("down-right-up-left"))
+            {
+                bishopMoves.AddRange(GetMovesDownRightDiagonal(fromSquare));
+                bishopMoves.AddRange(GetMovesUpLeftDiagonal(fromSquare));
+            }            
 
             return bishopMoves;
         }
 
         private IEnumerable<Move> GetKnightMoves(int fromSquare)
         {
-            List<Move> knightMoves = new List<Move>();
+            List<Move> knightMoves = new List<Move>(12);
+
+            if (this.GetIllegalDirections(fromSquare).Any())
+            {
+                return knightMoves;
+            }
+
             // Long is three, short is one
             int difUpLeftShort = -10;
             int difUpLeftLong = -17;
@@ -702,14 +740,15 @@
 
         private IEnumerable<Move> GetPawnMoves(int fromSquare)
         {
-            List<Move> pawnMoves = new List<Move>(4);
+            List<Move> pawnMoves = new List<Move>(7);
+            HashSet<string> illegalDirections = this.GetIllegalDirections(fromSquare);
             int direction = (this.SideToMove == Color.White) ? -1 : 1;
             int oneForward = fromSquare + (8 * direction);
             int twoForward = fromSquare + (16 * direction);
             int captureLeft = fromSquare + (9 * direction);
             int captureRight = fromSquare + (7 * direction);
 
-            if (this.Board[oneForward].OccupiedBy.Type == PieceType.None)
+            if (this.Board[oneForward].OccupiedBy.Type == PieceType.None && !illegalDirections.Contains("vertical"))
             {
                 pawnMoves.Add(new Move(fromSquare, oneForward));
 
@@ -721,12 +760,14 @@
             }
 
             if (this.InitialPawnSquares.Contains(fromSquare)
-                && this.Board[fromSquare].OccupiedBy.Color == this.SideToMove)
+                && this.Board[fromSquare].OccupiedBy.Color == this.SideToMove
+                && !illegalDirections.Contains("vertical"))
             {
                 pawnMoves.Add(new Move(fromSquare, twoForward));
             }
 
-            if (this.Board[captureLeft].OccupiedBy.Color == this.OppositeColor)
+            if (this.Board[captureLeft].OccupiedBy.Color == this.OppositeColor
+                && !illegalDirections.Contains("down-left-up-right"))
             {
                 pawnMoves.Add(new Move(fromSquare, captureLeft));
 
@@ -737,7 +778,8 @@
                 }
             }
 
-            if (this.Board[captureRight].OccupiedBy.Color == this.OppositeColor)
+            if (this.Board[captureRight].OccupiedBy.Color == this.OppositeColor
+                && !illegalDirections.Contains("down-right-up-left"))
             {
                 pawnMoves.Add(new Move(fromSquare, captureRight));
 
@@ -748,12 +790,15 @@
                 }
             }
 
-            int enPassantSquare = this.GetEnPassantSquare();
-
-            if (enPassantSquare > -1)
+            if (!(illegalDirections.Contains("down-right-up-left") && illegalDirections.Contains("down-left-up-right")))
             {
-                pawnMoves.Add(new Move(fromSquare, enPassantSquare));
-            }
+                int enPassantSquare = this.GetEnPassantSquare();
+
+                if (enPassantSquare > -1)
+                {
+                    pawnMoves.Add(new Move(fromSquare, enPassantSquare));
+                }
+            }            
 
             return pawnMoves;
         }
@@ -957,8 +1002,10 @@
             }
         }
 
-        private string[] GetPinDirections(int fromSquare)
+        private HashSet<string> GetIllegalDirections(int fromSquare)
         {
+            HashSet<string> pinDirections = new HashSet<string>();
+
             if (!this.OpponentControl.Any(kvp =>
             (
                 kvp.Key.Type == PieceType.Queen ||
@@ -966,7 +1013,7 @@
                 kvp.Key.Type == PieceType.Bishop)
                 && kvp.Value.Contains(fromSquare)))
             {
-                return null;
+                return pinDirections;
             }
 
             int kingPosition = this.GetKingPosition();
@@ -974,32 +1021,16 @@
             int kingCol = kingPosition % 8;
             int pieceRow = fromSquare / 8;
             int pieceCol = fromSquare % 8;
-            bool horizontalPinPossible = false;
-            bool verticalPinPossible = false;
-            bool diagonalPinPossible = false;
-            bool[] possiblePins = new bool[3] { horizontalPinPossible, verticalPinPossible, diagonalPinPossible };
-
-            if (kingRow == pieceRow)
-            {
-                horizontalPinPossible = true;
-            }
-
-            if (kingCol == pieceCol)
-            {
-                horizontalPinPossible = true;
-            }
-
-            if (Math.Abs(kingRow - kingCol) == Math.Abs(pieceRow - pieceCol))
-            {
-                diagonalPinPossible = true;
-            }
+            bool verticalPinPosible = (kingRow == pieceRow);
+            bool horizontalPinPossible = (kingCol == pieceCol);
+            bool downLeftUpRightPinPossible = (Math.Abs(fromSquare - kingPosition) % 7 == 0);
+            bool upLeftDownRight = (Math.Abs(fromSquare - kingPosition) % 9 == 0);
+            bool[] possiblePins = new bool[4] { verticalPinPosible, horizontalPinPossible, downLeftUpRightPinPossible, upLeftDownRight };
 
             if (possiblePins.All(pinIsPossible => !pinIsPossible))
             {
-                return null;
+                return pinDirections;
             }
-
-            List<string> pinDirections = new List<string>(8);
 
             for (int i = 0; i < possiblePins.Length; i++)
             {
@@ -1007,22 +1038,28 @@
                 {
                     switch (i)
                     {
-                        case 0: // Vertical, same row, so piece can't move up or down
-                            if (this.EmptySquaresBetweenKingAndPiece("vertical", fromSquare, kingPosition))
+                        case 0: // Vertical, same rank, so piece can't move up or down
+                            if (this.PinExists("vertical", fromSquare, kingPosition))
                             {
                                 pinDirections.Add("vertical");
                             }
                             break;
                         case 1: // Horizontal, same file, so piece can't move left or right
-                            if (this.EmptySquaresBetweenKingAndPiece("horizontal", fromSquare, kingPosition))
+                            if (this.PinExists("horizontal", fromSquare, kingPosition))
                             {
                                 pinDirections.Add("horizontal");
                             }
                             break;
-                        case 2: // Diagonal, 
-                            if (this.EmptySquaresBetweenKingAndPiece("diagonal", fromSquare, kingPosition))
+                        case 2: // First diagonal
+                            if (this.PinExists("down-left-up-right", fromSquare, kingPosition))
                             {
-                                pinDirections.Add("diagonal");
+                                pinDirections.Add("down-left-up-right");
+                            }
+                            break;
+                        case 3: // Second diagonal
+                            if (this.PinExists("down-right-up-left", fromSquare, kingPosition))
+                            {
+                                pinDirections.Add("down-right-up-left");
                             }
                             break;
                         default:
@@ -1031,17 +1068,17 @@
                 }
             }
 
-            return null;
+            return pinDirections;
         }
 
-        private bool EmptySquaresBetweenKingAndPiece(string direction, int fromSquare, int kingPosition)
+        private bool PinExists(string potentialIllegalDirection, int fromSquare, int kingPosition)
         {
             int difference = Math.Abs(fromSquare - kingPosition);
             int minSquare = Math.Min(fromSquare, kingPosition);
             int maxSquare = Math.Max(fromSquare, kingPosition);
             int increment = 0;
 
-            switch (direction)
+            switch (potentialIllegalDirection)
             {
                 case "vertical":
                     increment = 1;
@@ -1049,16 +1086,17 @@
                 case "horizontal":
                     increment = 8;
                     break;
-                case "diagonal":
-                    increment = difference;
+                case "down-left-up-right":
+                case "down-right-up-left":
+                    increment = (difference % 7 == 0) ? 7 : 9;
                     break;
                 default:
-                    break;
+                    return true; // Something went wrong, returns that a pin exists
             }
 
             for (int i = minSquare; i < maxSquare; i += increment)
             {
-                if (this.Board[i].OccupiedBy.Type != PieceType.None)
+                if (this.Board[i].OccupiedBy.Type != PieceType.None) // There is a piece between the current piece and the king; no pin
                 {
                     return false;
                 }
