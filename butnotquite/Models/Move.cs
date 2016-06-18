@@ -17,11 +17,11 @@
             this.FromSquare = fromSquare;
             this.ToSquare = toSquare;
 
-            this.PromotionPiece = null;
-            this.KingFromSquare = 0;
-            this.KingToSquare = 0;
-            this.RookFromSquare = 0;
-            this.RookToSquare = 0;
+            this.PromotionPiece = new Piece();
+            this.KingFromSquare = -1;
+            this.KingToSquare = -1;
+            this.RookFromSquare = -1;
+            this.RookToSquare = -1;
         }
 
         // Pawn promotion constructor
@@ -39,9 +39,9 @@
             this.RookFromSquare = rookFromSquare;
             this.RookToSquare = rookToSquare;
 
-            this.FromSquare = 0;
-            this.ToSquare = 0;
-            this.PromotionPiece = null;
+            this.FromSquare = -1;
+            this.ToSquare = -1;
+            this.PromotionPiece = new Piece();
         }
     }
 }

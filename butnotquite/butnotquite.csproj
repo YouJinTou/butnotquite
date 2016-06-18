@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\MoveGenerator.cs" />
     <Compile Include="Models\Board.cs" />
     <Compile Include="Defaults\InitialPieceValue.cs" />
     <Compile Include="Defaults\PieceType.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Defaults\Side.cs" />
     <Compile Include="Models\Square.cs" />
+    <Compile Include="Utils\Helpers\FenParser.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

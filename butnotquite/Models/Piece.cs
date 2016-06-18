@@ -6,7 +6,7 @@
     using System.Collections.Generic;
 
     [Serializable]
-    internal sealed class Piece : IComparable<Piece>
+    internal sealed class Piece : IEquatable<Piece>
     {
         internal Color Color;
         internal PieceType Type;
@@ -51,9 +51,16 @@
             }
         }
 
-        public int CompareTo(Piece other)
+        public bool Equals(Piece other)
         {
-            return this.Position.CompareTo(other.Position);
+            if (other == null)
+            {
+                return false;
+            }
+
+            return
+                this.Position == other.Position &&
+                this.Type == other.Type;
         }
     }
 }
