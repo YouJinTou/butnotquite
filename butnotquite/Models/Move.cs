@@ -1,9 +1,12 @@
 ﻿namespace butnotquite.Models
 {
+    using Defaults;
+
     internal struct Move
     {
         internal int FromSquare;
         internal int ToSquare;
+        internal Direction Direction;
 
         internal Piece PromotionPiece;
 
@@ -12,10 +15,11 @@
         internal int RookFromSquare;
         internal int RookToSquare;
 
-        internal Move(int fromSquare, int toSquare)
+        internal Move(int fromSquare, int toSquare, Direction direction)
         {
             this.FromSquare = fromSquare;
             this.ToSquare = toSquare;
+            this.Direction = direction;
 
             this.PromotionPiece = new Piece();
             this.KingFromSquare = -1;
@@ -25,8 +29,8 @@
         }
 
         // Pawn promotion constructor
-        internal Move(int fromSquare, int toSquare, Piece promotionPiece)
-            : this(fromSquare, toSquare)
+        internal Move(int fromSquare, int toSquare, Direction direction, Piece promotionPiece)
+            : this(fromSquare, toSquare, direction)
         {
             this.PromotionPiece = promotionPiece;
         }
@@ -38,8 +42,9 @@
             this.KingToSquare = kingToSquare;
             this.RookFromSquare = rookFromSquare;
             this.RookToSquare = rookToSquare;
+            this.Direction = Direction.Castle;
 
-            this.FromSquare = -1;
+            this.FromSquare = -1; // The initial move is the king's, not the rook's
             this.ToSquare = -1;
             this.PromotionPiece = new Piece();
         }

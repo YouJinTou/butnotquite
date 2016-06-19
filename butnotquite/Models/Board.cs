@@ -13,7 +13,7 @@
         internal Color OppositeColor;
         internal int Evaluation;
 
-        internal IDictionary<Piece, HashSet<int>> OpponentControl;
+        internal IDictionary<Piece, HashSet<int>> OpponentActivity;
 
         internal int WhiteKingPosition;
         internal int BlackKingPosition;
@@ -42,10 +42,10 @@
             this.WhiteKingPosition = 60;
             this.BlackKingPosition = 4;
 
-            this.OpponentControl = new Dictionary<Piece, HashSet<int>>(30);
+            this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
         }               
 
-        internal void MakeMove(int fromSquare, int toSquare)
+        internal void MakeMove(int fromSquare, int toSquare, Direction direction)
         {
             Piece movingPiece = Utils.MakeDeepCopy(this.Board[fromSquare].OccupiedBy);
 
@@ -53,7 +53,7 @@
             this.Board[toSquare].OccupiedBy = movingPiece;
             movingPiece.Position = toSquare;
 
-            this.LastMove = new Move(fromSquare, toSquare);
+            this.LastMove = new Move(fromSquare, toSquare, direction);
 
             this.SideToMove = (this.SideToMove == Color.White) ? Color.Black : Color.White;
             this.OppositeColor = (this.SideToMove == Color.White) ? Color.Black : Color.White;
