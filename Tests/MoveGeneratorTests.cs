@@ -866,6 +866,111 @@
 
         #region Pins
 
+        [TestMethod]
+        public void Pin_ShouldIncludeTheCorrectMovesOfPinnedPieces()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("k7/1b2r3/b7/7p/6q1/2pPNBp1/r2QKP1r/3N3r w - - 3 41");
+            List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+                        
+            // Illegal moves
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 43
+                && m.ToSquare == 35));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 43
+                && m.ToSquare == 34));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 43
+                && m.ToSquare == 36));
+
+            Assert.IsTrue(!availableMoves.Any(m => m.FromSquare == 44));            
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 45
+                && m.ToSquare == 54));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 45
+                && m.ToSquare == 63));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 45
+                && m.ToSquare == 18));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 45
+                && m.ToSquare == 9));
+
+            Assert.IsTrue(!availableMoves.Any(m => m.FromSquare == 53));
+
+            Assert.IsTrue(!availableMoves.Any(m => m.FromSquare == 52));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 51
+                && m.ToSquare == 42));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 51
+                && m.ToSquare == 60));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 51
+                && m.ToSquare == 58));           
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 59
+                && m.ToSquare == 44));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 59
+                && m.ToSquare == 53));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 59
+                && m.ToSquare == 65));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 59
+                && m.ToSquare == 74));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 59
+                && m.ToSquare == 69));
+
+            Assert.IsTrue(!availableMoves.Any(m =>
+                m.FromSquare == 59
+                && m.ToSquare == 76));
+
+            // Legal moves            
+
+            Assert.IsTrue(availableMoves.Any(m =>
+                m.FromSquare == 59
+                && m.ToSquare == 42));
+
+            Assert.IsTrue(availableMoves.Any(m =>
+                m.FromSquare == 59
+                && m.ToSquare == 49));
+
+            Assert.IsTrue(availableMoves.Any(m =>
+               m.FromSquare == 51
+               && m.ToSquare == 50));
+
+            Assert.IsTrue(availableMoves.Any(m =>
+                m.FromSquare == 51
+                && m.ToSquare == 49));
+
+            Assert.IsTrue(availableMoves.Any(m =>
+                m.FromSquare == 51
+                && m.ToSquare == 48));            
+
+            Assert.IsTrue(availableMoves.Any(m =>
+                m.FromSquare == 45
+                && m.ToSquare == 38));
+        }
+
         #endregion
     }
 }

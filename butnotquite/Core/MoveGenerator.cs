@@ -1,6 +1,7 @@
 ﻿namespace butnotquite.Core
 {
     using Defaults;
+    using Helpers;
     using Models;
 
     using System;
@@ -17,10 +18,12 @@
 
         #region Move Generation
 
-        internal static List<Move> GetAvailableMoves(Chessboard chessboardPosition)
+        #region Main
+
+        internal static List<Move> GetAvailableMoves(Chessboard currentPosition)
         {
             List<Move> availableMoves = new List<Move>(300);
-            position = chessboardPosition;
+            position = currentPosition;
 
             if (!GettingOpponentActivity)
             {
@@ -67,11 +70,48 @@
 
             if (!GettingOpponentActivity)
             {
-                RemoveIllegalMovesPinwise(availableMoves);
+                PinChecker.RemoveIllegalMoves(position, availableMoves);
             }
 
             return availableMoves;
         }
+
+        private static void GetCurrentOpponentActivity()
+        {
+            position.OpponentActivity.Clear();
+
+            // Reverse the colors
+            position.SideToMove = (position.SideToMove == Color.White) ? Color.Black : Color.White;
+            position.OppositeColor = (position.SideToMove == Color.White) ? Color.Black : Color.White;
+
+            List<Move> availableMoves = GetAvailableMoves(position);
+            GettingOpponentActivity = false;
+
+            for (int i = 0; i < availableMoves.Count; i++)
+            {
+                int fromSquare = availableMoves[i].FromSquare;
+
+                if (fromSquare == -1) // Castling will not be included
+                {
+                    continue;
+                }
+
+                Square currentSquare = position.Board[fromSquare];
+
+                if (!position.OpponentActivity.ContainsKey(currentSquare.OccupiedBy))
+                {
+                    position.OpponentActivity[currentSquare.OccupiedBy] = new HashSet<int>();
+                }
+
+                position.OpponentActivity[currentSquare.OccupiedBy].Add(availableMoves[i].ToSquare);
+            }
+
+            // Undo color reversion
+            position.SideToMove = (position.SideToMove == Color.White) ? Color.Black : Color.White;
+            position.OppositeColor = (position.SideToMove == Color.White) ? Color.Black : Color.White;
+        }
+
+        #endregion
 
         #region Common Movement Patterns
 
@@ -381,22 +421,24 @@
 
                     kingMoves.Add(new Move(kingFromSquare, kingDestination, rookFromSquare, rookDestination));
                 }
-            }            
+            }
 
-            int currentKingPosition = GetKingPosition();
-            int upLeft = currentKingPosition - 9;
-            int up = currentKingPosition - 8;
-            int upRight = currentKingPosition - 7;
-            int right = currentKingPosition + 1;
-            int downRight = currentKingPosition + 9;
-            int down = currentKingPosition + 8;
-            int downLeft = currentKingPosition + 7;
-            int left = currentKingPosition - 1;
+            int kingPosition = (position.SideToMove == Color.White) ? 
+                position.WhiteKingPosition : 
+                position.BlackKingPosition;
+            int upLeft = kingPosition - 9;
+            int up = kingPosition - 8;
+            int upRight = kingPosition - 7;
+            int right = kingPosition + 1;
+            int downRight = kingPosition + 9;
+            int down = kingPosition + 8;
+            int downLeft = kingPosition + 7;
+            int left = kingPosition - 1;
             int[] kingMovePositions = new int[8]
             {
                 upLeft, up, upRight, right, downRight, down, downLeft, left
             };
-            int currentKingCol = currentKingPosition % 8;
+            int currentKingCol = kingPosition % 8;
 
             for (int i = 0; i < kingMovePositions.Length; i++)
             {
@@ -533,7 +575,7 @@
                 }
             }
 
-            return knightMoves;
+                return knightMoves;
         }
 
         private static List<Move> GetPawnMoves(int fromSquare)
@@ -566,7 +608,7 @@
                     {
                         pawnMoves.Add(new Move(fromSquare, twoForward, Direction.Vertical));
                     }
-                }                
+                }
             }
 
             pawnMoves.AddRange(GenerateDiagonalPawnCaptures(fromSquare, captureLeft, Direction.DownRightUpLeft));
@@ -581,7 +623,7 @@
 
             return pawnMoves;
         }
-        
+
         #endregion
 
         #region Special Cases
@@ -599,7 +641,7 @@
 
                 for (int i = 0; i < whiteShortCastleSquares.Length; i++)
                 {
-                    if (position.Board[whiteShortCastleSquares[i]].OccupiedBy.Type != PieceType.None || 
+                    if (position.Board[whiteShortCastleSquares[i]].OccupiedBy.Type != PieceType.None ||
                         position.OpponentActivity.Any(kvp => kvp.Value.Contains(whiteShortCastleSquares[i])))
                     {
                         return false;
@@ -618,7 +660,7 @@
 
             for (int i = 0; i < blackShortCastleSquares.Length; i++)
             {
-                if (position.Board[blackShortCastleSquares[i]].OccupiedBy.Type != PieceType.None || 
+                if (position.Board[blackShortCastleSquares[i]].OccupiedBy.Type != PieceType.None ||
                     position.OpponentActivity.Any(kvp => kvp.Value.Contains(blackShortCastleSquares[i])))
                 {
                     return false;
@@ -646,7 +688,7 @@
 
                 for (int i = 0; i < whiteLongCastleSquares.Length; i++)
                 {
-                    if (position.Board[whiteLongCastleSquares[i]].OccupiedBy.Type != PieceType.None || 
+                    if (position.Board[whiteLongCastleSquares[i]].OccupiedBy.Type != PieceType.None ||
                         position.OpponentActivity.Any(kvp => kvp.Value.Contains(whiteLongCastleSquares[i])))
                     {
                         return false;
@@ -741,20 +783,13 @@
 
         #endregion
 
-        #region Utils
+        #region Helpers
 
         private static bool KingIsInCheck()
         {
             return (position.SideToMove == Color.White) ?
                 position.OpponentActivity.Any(kvp => kvp.Value.Contains(position.WhiteKingPosition)) :
                 position.OpponentActivity.Any(kvp => kvp.Value.Contains(position.BlackKingPosition));
-        }
-
-        private static int GetKingPosition()
-        {
-            return (position.SideToMove == Color.White) ?
-                position.WhiteKingPosition :
-                position.BlackKingPosition;
         }
 
         private static List<Move> GenerateDiagonalPawnCaptures(int fromSquare, int diagonalCaptureIndex, Direction direction)
@@ -788,162 +823,7 @@
             }
 
             return pawnMoves;
-        }
-
-        private static void GetCurrentOpponentActivity()
-        {
-            position.OpponentActivity.Clear();
-
-            // Reverse the colors
-            position.SideToMove = (position.SideToMove == Color.White) ? Color.Black : Color.White;
-            position.OppositeColor = (position.SideToMove == Color.White) ? Color.Black : Color.White;
-
-            List<Move> availableMoves = GetAvailableMoves(position);
-            GettingOpponentActivity = false;
-
-            for (int i = 0; i < availableMoves.Count; i++)
-            {
-                int fromSquare = availableMoves[i].FromSquare;
-
-                if (fromSquare == -1) // Castling will not be included
-                {
-                    continue;
-                }
-
-                Square currentSquare = position.Board[fromSquare];
-
-                if (!position.OpponentActivity.ContainsKey(currentSquare.OccupiedBy))
-                {
-                    position.OpponentActivity[currentSquare.OccupiedBy] = new HashSet<int>();
-                }
-
-                position.OpponentActivity[currentSquare.OccupiedBy].Add(availableMoves[i].ToSquare);
-            }
-
-            // Undo color reversion
-            position.SideToMove = (position.SideToMove == Color.White) ? Color.Black : Color.White;
-            position.OppositeColor = (position.SideToMove == Color.White) ? Color.Black : Color.White;
-        }
-
-        private static void RemoveIllegalMovesPinwise(List<Move> availableMoves)
-        {
-            for (int i = 0; i < availableMoves.Count; i++)
-            {
-                Move move = availableMoves[i];
-                HashSet<Direction> illegalDirections = GetIllegalDirections(move.FromSquare);
-
-                availableMoves.RemoveAll(m => m.FromSquare == move.FromSquare && illegalDirections.Contains(move.Direction));
-            }
-        }
-
-        private static HashSet<Direction> GetIllegalDirections(int fromSquare)
-        {
-            HashSet<Direction> pinDirections = new HashSet<Direction>();
-
-            if (!position.OpponentActivity.Any(kvp =>
-            (
-                kvp.Key.Type == PieceType.Queen ||
-                kvp.Key.Type == PieceType.Rook ||
-                kvp.Key.Type == PieceType.Bishop)
-                && kvp.Value.Contains(fromSquare)))
-            {
-                return pinDirections;
-            }
-
-            int kingPosition = GetKingPosition();
-            int kingRow = kingPosition / 8;
-            int kingCol = kingPosition % 8;
-            int pieceRow = fromSquare / 8;
-            int pieceCol = fromSquare % 8;
-            bool verticalPinPosible = (kingRow == pieceRow);
-            bool horizontalPinPossible = (kingCol == pieceCol);
-            bool downLeftUpRightPinPossible = (Math.Abs(fromSquare - kingPosition) % 7 == 0);
-            bool downRightUpLeft = (Math.Abs(fromSquare - kingPosition) % 9 == 0);
-            bool[] possiblePins = new bool[4] { verticalPinPosible, horizontalPinPossible, downLeftUpRightPinPossible, downRightUpLeft };
-
-            if (possiblePins.All(pinIsPossible => !pinIsPossible))
-            {
-                return pinDirections;
-            }
-
-            for (int i = 0; i < possiblePins.Length; i++)
-            {
-                if (possiblePins[i])
-                {
-                    switch (i)
-                    {
-                        case 0: // Vertical, same rank, so piece can't move up or down
-                            if (PinExists(Direction.Vertical, fromSquare, kingPosition))
-                            {
-                                pinDirections.Add(Direction.Vertical);
-                                pinDirections.Add(Direction.L); // If the knight is pinned, it simply can't move
-                            }
-                            break;
-                        case 1: // Horizontal, same file, so piece can't move left or right
-                            if (PinExists(Direction.Horizontal, fromSquare, kingPosition))
-                            {
-                                pinDirections.Add(Direction.Horizontal);
-                                pinDirections.Add(Direction.L);
-                            }
-                            break;
-                        case 2: // First diagonal
-                            if (PinExists(Direction.DownLeftUpRight, fromSquare, kingPosition))
-                            {
-                                pinDirections.Add(Direction.DownLeftUpRight);
-                                pinDirections.Add(Direction.L);
-                                pinDirections.Add(Direction.EnPassant);
-                            }
-                            break;
-                        case 3: // Second diagonal
-                            if (PinExists(Direction.DownRightUpLeft, fromSquare, kingPosition))
-                            {
-                                pinDirections.Add(Direction.DownRightUpLeft);
-                                pinDirections.Add(Direction.L);
-                                pinDirections.Add(Direction.EnPassant);
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            return pinDirections;
-        }
-
-        private static bool PinExists(Direction potentialIllegalDirection, int fromSquare, int kingPosition)
-        {
-            int difference = Math.Abs(fromSquare - kingPosition);
-            int minSquare = Math.Min(fromSquare, kingPosition);
-            int maxSquare = Math.Max(fromSquare, kingPosition);
-            int increment = 0;
-
-            switch (potentialIllegalDirection)
-            {
-                case Direction.Vertical:
-                    increment = 1;
-                    break;
-                case Direction.Horizontal:
-                    increment = 8;
-                    break;
-                case Direction.DownLeftUpRight:
-                case Direction.DownRightUpLeft:
-                    increment = (difference % 7 == 0) ? 7 : 9;
-                    break;
-                default:
-                    return true; // Something went wrong, returns that a pin exists
-            }
-
-            for (int i = minSquare; i < maxSquare; i += increment)
-            {
-                if (position.Board[i].OccupiedBy.Type != PieceType.None) // There is a piece between the current piece and the king; no pin
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        }        
 
         private static void ResetSquare(int squareNumber)
         {
