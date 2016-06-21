@@ -133,6 +133,11 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
+                    if (GettingOpponentActivity)
+                    {
+                        movesUp.Add(new Move(fromSquare, location, Direction.Vertical));
+                    }
+
                     break;
                 }
 
@@ -165,6 +170,11 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
+                    if (GettingOpponentActivity)
+                    {
+                        movesDown.Add(new Move(fromSquare, location, Direction.Vertical));
+                    }
+
                     break;
                 }
 
@@ -197,6 +207,11 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
+                    if (GettingOpponentActivity)
+                    {
+                        movesLeft.Add(new Move(fromSquare, location, Direction.Horizontal));
+                    }
+
                     break;
                 }
 
@@ -229,6 +244,11 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
+                    if (GettingOpponentActivity)
+                    {
+                        movesRight.Add(new Move(fromSquare, location, Direction.Horizontal));
+                    }
+
                     break;
                 }
 
@@ -265,6 +285,11 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
+                    if (GettingOpponentActivity)
+                    {
+                        movesUpRight.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));
+                    }
+
                     break;
                 }
 
@@ -302,6 +327,11 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
+                    if (GettingOpponentActivity)
+                    {
+                        movesDownLeft.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));
+                    }
+
                     break;
                 }
 
@@ -339,6 +369,11 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
+                    if (GettingOpponentActivity)
+                    {
+                        movesUpLeft.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));
+                    }
+
                     break;
                 }
 
@@ -376,6 +411,11 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
+                    if (GettingOpponentActivity)
+                    {
+                        movesDownRight.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));
+                    }
+
                     break;
                 }
 
@@ -423,8 +463,8 @@
                 }
             }
 
-            int kingPosition = (position.SideToMove == Color.White) ? 
-                position.WhiteKingPosition : 
+            int kingPosition = (position.SideToMove == Color.White) ?
+                position.WhiteKingPosition :
                 position.BlackKingPosition;
             int upLeft = kingPosition - 9;
             int up = kingPosition - 8;
@@ -455,6 +495,11 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
+                    if (GettingOpponentActivity)
+                    {
+                        kingMoves.Add(new Move(fromSquare, toSquare, Direction.SingleSquare));
+                    }
+
                     continue;
                 }
 
@@ -470,7 +515,8 @@
                     continue;
                 }
 
-                if (square.OccupiedBy.Color == position.OppositeColor)
+                if (square.OccupiedBy.Color == position.OppositeColor &&
+                    !position.OpponentActivity.Any(kvp => kvp.Value.Contains(toSquare)))
                 {
                     kingMoves.Add(new Move(fromSquare, toSquare, Direction.SingleSquare));
                 }
@@ -562,6 +608,16 @@
 
                 Square square = position.Board[destination];
 
+                if (square.OccupiedBy.Color == position.SideToMove)
+                {
+                    if (GettingOpponentActivity)
+                    {
+                        knightMoves.Add(new Move(fromSquare, destination, Direction.SingleSquare));
+                    }
+
+                    continue;
+                }
+
                 if (square.OccupiedBy.Type == PieceType.None)
                 {
                     knightMoves.Add(new Move(fromSquare, destination, Direction.L));
@@ -575,7 +631,7 @@
                 }
             }
 
-                return knightMoves;
+            return knightMoves;
         }
 
         private static List<Move> GetPawnMoves(int fromSquare)
@@ -591,7 +647,7 @@
 
             if (position.Board[oneForward].OccupiedBy.Type == PieceType.None)
             {
-                if (!GettingOpponentActivity) // When generating the opponent's moves, we don't need the check the squares in front of the pawns
+                if (!GettingOpponentActivity) // When generating the opponent's moves, we don't need to check the squares in front of the pawns
                 {
                     if (IsPawnPromotion(oneForward))
                     {
@@ -816,14 +872,14 @@
                         }
                     }
                 }
-                else // Just get the square that this pawn controls
+                else // Just get the square that the enemy pawn controls
                 {
                     pawnMoves.Add(new Move(fromSquare, diagonalCaptureIndex, Direction.DownRightUpLeft));
                 }
             }
 
             return pawnMoves;
-        }        
+        }
 
         private static void ResetSquare(int squareNumber)
         {

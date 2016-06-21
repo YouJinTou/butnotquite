@@ -12,9 +12,31 @@
     [TestClass]
     public class MoveGeneratorTests
     {
-        #region All Moves
+        #region All Pieces
 
+        [TestMethod]
+        public void AllPiecesMovement_ShouldList218MovesForWhiteAndZeroMovesForBlack_1()
+        {
+            Chessboard positionWhite = Utils.LoadPositionFromFenString("R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1");
+            Chessboard positionBlack = Utils.LoadPositionFromFenString("R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 b - - 0 1");
+            List<Move> availableMovesWhite = MoveGenerator.GetAvailableMoves(positionWhite);
+            List<Move> availableMovesBlack = MoveGenerator.GetAvailableMoves(positionBlack);
+            
+            Assert.IsTrue(availableMovesWhite.Count == 218);            
+            Assert.IsTrue(availableMovesBlack.Count == 0);
+        }
 
+        [TestMethod]
+        public void AllPiecesMovement_ShouldList218MovesForWhiteAndZeroMovesForBlack_2()
+        {
+            Chessboard positionWhite = Utils.LoadPositionFromFenString("3Q4/1Q4Q1/4Q3/2Q4R/Q4Q2/3Q4/1Q4Rp/1K1BBNNk w - - 0 1");
+            Chessboard positionBlack = Utils.LoadPositionFromFenString("3Q4/1Q4Q1/4Q3/2Q4R/Q4Q2/3Q4/1Q4Rp/1K1BBNNk b - - 0 1");
+            List<Move> availableMovesWhite = MoveGenerator.GetAvailableMoves(positionWhite);
+            List<Move> availableMovesBlack = MoveGenerator.GetAvailableMoves(positionBlack);
+
+            Assert.IsTrue(availableMovesWhite.Count == 218);
+            Assert.IsTrue(availableMovesBlack.Count == 0);
+        }
 
         #endregion
 
@@ -181,21 +203,17 @@
                 && m.KingToSquare == 6
                 && m.RookFromSquare == 7
                 && m.RookToSquare == 5));
-
             Assert.IsTrue(!availableMoves.Any(m => // Long castling
                 m.KingFromSquare == 4
                 && m.KingToSquare == 2
                 && m.RookFromSquare == 0
                 && m.RookToSquare == 3));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 4
                 && m.ToSquare == 5));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 4
                 && m.ToSquare == 3));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 4
                 && m.ToSquare == 11));
@@ -210,19 +228,15 @@
             Assert.IsTrue(availableMoves.Any(m =>
                 m.FromSquare == 7
                 && m.ToSquare == 6));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 7
                 && m.ToSquare == 8));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 7
                 && m.ToSquare == 14));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 7
                 && m.ToSquare == 15));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 7
                 && m.ToSquare == 16));
@@ -265,32 +279,24 @@
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 0
                && m.ToSquare == 7));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 0
                && m.ToSquare == 24));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 0
                && m.ToSquare == 45));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 0
                 && m.ToSquare == -1));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 0
-                && m.ToSquare == -7));            
-
+                && m.ToSquare == -7));
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 0
                 && m.ToSquare == -8));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 0
                 && m.ToSquare == -9));
-
-            
         }
 
         [TestMethod]
@@ -329,27 +335,21 @@
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 7
                && m.ToSquare == 0));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 7
                && m.ToSquare == 1));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 7
                 && m.ToSquare == 8));
-
             Assert.IsTrue(!availableMoves.Any(m =>
               m.FromSquare == 7
               && m.ToSquare == 13));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 7
                && m.ToSquare == 71));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 7
                 && m.ToSquare == -2));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 7
                 && m.ToSquare == -1));
@@ -382,31 +382,24 @@
             Assert.IsTrue(!availableMoves.Any(m =>
               m.FromSquare == 56
               && m.ToSquare == 28));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 56
                && m.ToSquare == 48));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 56
                 && m.ToSquare == 50));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 56
                 && m.ToSquare == 47));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 56
                && m.ToSquare == 55));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 56
                && m.ToSquare == 61));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 56
                 && m.ToSquare == 63));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 56
                 && m.ToSquare == 64));
@@ -453,27 +446,21 @@
             Assert.IsTrue(!availableMoves.Any(m =>
               m.FromSquare == 63
               && m.ToSquare == -9));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 63
                && m.ToSquare == -1));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 63
                && m.ToSquare == 53));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 63
-                && m.ToSquare == 64));           
-
+                && m.ToSquare == 64));  
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 63
-               && m.ToSquare == 70));           
-
+               && m.ToSquare == 70));
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 63
                && m.ToSquare == 71));
-
             Assert.IsTrue(!availableMoves.Any(m =>
               m.FromSquare == 63
               && m.ToSquare == 72));
@@ -505,35 +492,27 @@
             Assert.IsTrue(!availableMoves.Any(m =>
               m.FromSquare == 36
               && m.ToSquare == 18));
-
             Assert.IsTrue(!availableMoves.Any(m =>
               m.FromSquare == 36
               && m.ToSquare == 22));
-
             Assert.IsTrue(!availableMoves.Any(m =>
               m.FromSquare == 36
               && m.ToSquare == 28));
-
             Assert.IsTrue(!availableMoves.Any(m =>
               m.FromSquare == 36
               && m.ToSquare == 32));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 36
                && m.ToSquare == 37));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 36
                && m.ToSquare == 43));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 36
                && m.ToSquare == 45));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                m.FromSquare == 36
                && m.ToSquare == 52));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 36
                 && m.ToSquare == 53));
@@ -569,23 +548,18 @@
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 0
                     && m.ToSquare == -10));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 0
                     && m.ToSquare == -17));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 0
                     && m.ToSquare == -6));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 0
                     && m.ToSquare == -15));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 0
                     && m.ToSquare == 6));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 0
                     && m.ToSquare == 15));
@@ -594,23 +568,18 @@
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 7
                     && m.ToSquare == -3));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 7
                     && m.ToSquare == -10));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 7
                     && m.ToSquare == 1));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 7
                     && m.ToSquare == -8));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 7
                     && m.ToSquare == 17));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 7
                     && m.ToSquare == 24));
@@ -619,23 +588,18 @@
             Assert.IsTrue(!availableMoves.Any(m =>
                    m.FromSquare == 56
                    && m.ToSquare == 46));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 56
                     && m.ToSquare == 39));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 56
                     && m.ToSquare == 66));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 56
                     && m.ToSquare == 73));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 56
                     && m.ToSquare == 62));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 56
                     && m.ToSquare == 71));
@@ -644,23 +608,18 @@
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 63
                     && m.ToSquare == 57));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 63
                     && m.ToSquare == 48));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 63
                     && m.ToSquare == 73));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 63
                     && m.ToSquare == 80));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 63
                     && m.ToSquare == 69));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 63
                     && m.ToSquare == 78));
@@ -702,19 +661,15 @@
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 9
                     && m.ToSquare == -1));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 9
                     && m.ToSquare == -8));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 9
                     && m.ToSquare == -6));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 9
                     && m.ToSquare == 26));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 9
                     && m.ToSquare == 15));
@@ -723,15 +678,12 @@
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 14
                     && m.ToSquare == -3));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 14
                     && m.ToSquare == 8));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 14
                     && m.ToSquare == -1));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 14
                     && m.ToSquare == 24));
@@ -740,15 +692,12 @@
             Assert.IsTrue(!availableMoves.Any(m =>
                    m.FromSquare == 49
                    && m.ToSquare == 39));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 49
                     && m.ToSquare == 66));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 49
                     && m.ToSquare == 55));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 49
                     && m.ToSquare == 64));
@@ -757,15 +706,12 @@
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 54
                     && m.ToSquare == 48));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 54
                     && m.ToSquare == 64));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 54
                     && m.ToSquare == 71));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                     m.FromSquare == 54
                     && m.ToSquare == 69));
@@ -873,99 +819,74 @@
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
                         
             // Illegal moves
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 43
                 && m.ToSquare == 35));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 43
                 && m.ToSquare == 34));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 43
                 && m.ToSquare == 36));
-
-            Assert.IsTrue(!availableMoves.Any(m => m.FromSquare == 44));            
-
+            Assert.IsTrue(!availableMoves.Any(m => m.FromSquare == 44));  
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 45
                 && m.ToSquare == 54));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 45
                 && m.ToSquare == 63));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 45
                 && m.ToSquare == 18));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 45
                 && m.ToSquare == 9));
-
             Assert.IsTrue(!availableMoves.Any(m => m.FromSquare == 53));
-
             Assert.IsTrue(!availableMoves.Any(m => m.FromSquare == 52));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 51
                 && m.ToSquare == 42));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 51
                 && m.ToSquare == 60));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 51
-                && m.ToSquare == 58));           
-
+                && m.ToSquare == 58));   
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 59
                 && m.ToSquare == 44));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 59
                 && m.ToSquare == 53));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 59
                 && m.ToSquare == 65));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 59
                 && m.ToSquare == 74));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 59
                 && m.ToSquare == 69));
-
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 59
                 && m.ToSquare == 76));
 
-            // Legal moves            
-
+            // Legal moves        
             Assert.IsTrue(availableMoves.Any(m =>
                 m.FromSquare == 59
                 && m.ToSquare == 42));
-
             Assert.IsTrue(availableMoves.Any(m =>
                 m.FromSquare == 59
                 && m.ToSquare == 49));
-
             Assert.IsTrue(availableMoves.Any(m =>
                m.FromSquare == 51
                && m.ToSquare == 50));
-
             Assert.IsTrue(availableMoves.Any(m =>
                 m.FromSquare == 51
                 && m.ToSquare == 49));
-
             Assert.IsTrue(availableMoves.Any(m =>
                 m.FromSquare == 51
-                && m.ToSquare == 48));            
-
+                && m.ToSquare == 48)); 
             Assert.IsTrue(availableMoves.Any(m =>
                 m.FromSquare == 45
                 && m.ToSquare == 38));
