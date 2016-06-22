@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Core\Helpers\PinChecker.cs" />
     <Compile Include="Core\MoveGenerator.cs" />
+    <Compile Include="Core\Search.cs" />
     <Compile Include="Defaults\Direction.cs" />
     <Compile Include="Models\Board.cs" />
     <Compile Include="Defaults\InitialPieceValue.cs" />

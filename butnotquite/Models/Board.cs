@@ -4,6 +4,7 @@
     using Utils;
 
     using System.Collections.Generic;
+    using System;
 
     internal sealed class Chessboard
     {
@@ -43,7 +44,7 @@
             this.BlackKingPosition = 4;
 
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
-        }               
+        }        
 
         internal void MakeMove(int fromSquare, int toSquare, Direction direction)
         {
@@ -54,6 +55,18 @@
             movingPiece.Position = toSquare;
 
             this.LastMove = new Move(fromSquare, toSquare, direction);
+
+            this.SideToMove = (this.SideToMove == Color.White) ? Color.Black : Color.White;
+            this.OppositeColor = (this.SideToMove == Color.White) ? Color.Black : Color.White;
+        }
+
+        internal void UndoMove(Move move)
+        {
+            Piece movingPiece = Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy);
+
+            this.ResetSquare(move.ToSquare);
+            this.Board[move.FromSquare].OccupiedBy = movingPiece;
+            movingPiece.Position = move.FromSquare;
 
             this.SideToMove = (this.SideToMove == Color.White) ? Color.Black : Color.White;
             this.OppositeColor = (this.SideToMove == Color.White) ? Color.Black : Color.White;
