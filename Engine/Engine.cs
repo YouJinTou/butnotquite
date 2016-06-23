@@ -8,7 +8,7 @@
     using System;
     using System.Diagnostics;
 
-    internal sealed class Engine
+    internal static class Engine
     {
         public static void Main()
         {
@@ -17,29 +17,33 @@
 
             sw.Start();
 
-            MoveGenerator.GetAvailableMoves(position);
-            position.MakeMove(52, 36, Direction.Vertical);
-
-            sw.Stop();
-            Console.WriteLine(sw.Elapsed);
-            sw.Reset();
-
-            sw.Start();
+            int score = Search.GetAlphaBeta(0, int.MinValue, int.MaxValue, position);
             
-            MoveGenerator.GetAvailableMoves(position);
-            position.MakeMove(12, 28, Direction.Vertical);
-
             sw.Stop();
+
+            Console.WriteLine("Final score: {0}",score);
             Console.WriteLine(sw.Elapsed);
-            sw.Reset();
+        }
 
-            sw.Start();
+        private static void PlayEngineGame()
+        {
+            Chessboard startingPosition = Utils.LoadPositionFromFenString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-            MoveGenerator.GetAvailableMoves(position);
-            position.MakeMove(12, 28, Direction.Vertical);
+            while (true)
+            {
 
-            sw.Stop();
-            Console.WriteLine(sw.Elapsed);
+            }
+        }
+
+        private static void PrintPosition(Chessboard position)
+        {
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+
+                }
+            }
         }
     }
 }

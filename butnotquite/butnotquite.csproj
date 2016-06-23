@@ -46,11 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Evaluator.cs" />
     <Compile Include="Core\Helpers\PinChecker.cs" />
     <Compile Include="Core\MoveGenerator.cs" />
     <Compile Include="Core\Search.cs" />
     <Compile Include="Defaults\Direction.cs" />
-    <Compile Include="Models\Board.cs" />
+    <Compile Include="Models\Chessboard.cs" />
     <Compile Include="Defaults\InitialPieceValue.cs" />
     <Compile Include="Defaults\PieceType.cs" />
     <Compile Include="Models\Move.cs" />

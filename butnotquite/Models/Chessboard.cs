@@ -4,7 +4,6 @@
     using Utils;
 
     using System.Collections.Generic;
-    using System;
 
     internal sealed class Chessboard
     {

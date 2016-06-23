@@ -9,9 +9,9 @@
     {
         internal const int MaxDepth = 4;
 
-        internal static int DoAlphaBetaPruning(int depth, int alpha, int beta, Chessboard position)
+        internal static int GetAlphaBeta(int depth, int alpha, int beta, Chessboard position)
         {
-            if (depth > MaxDepth)
+            if (depth == MaxDepth)
             {
                 return Evaluator.EvaluatePosition(position);
             }
@@ -29,22 +29,42 @@
 
                 position.MakeMove(currentMove.FromSquare, currentMove.ToSquare, currentMove.Direction);
 
-                int score = DoAlphaBetaPruning(depth + 1, alpha, beta, position);
-
-                if (score >= beta)
-                {
-                    return beta;
-                }
-
-                if (score > alpha)
-                {
-
-                }
+                int score = GetAlphaBeta(depth + 1, alpha, beta, position);
 
                 position.UndoMove(currentMove);
+
+                if (position.SideToMove == Color.White)
+                {
+                    if (depth == MaxDepth)
+                    {
+                        return score;
+                    }
+
+                    if (score <= beta)
+                    {
+                        beta = score;
+                    }                    
+                }
+                else
+                {
+                    if (depth == MaxDepth)
+                    {
+                        return score;
+                    }
+
+                    if (score > alpha)
+                    {
+                        alpha = score;
+                    }                    
+                }
+
+                if (alpha >= beta)
+                {
+                    return (position.SideToMove == Color.White) ? beta : alpha;
+                }
             }
 
-            return alpha;
+            return (position.SideToMove == Color.White) ? beta : alpha;
         }
     }
 }

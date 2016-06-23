@@ -645,7 +645,7 @@
             int captureRight = fromSquare + (7 * direction);
             int currentCol = fromSquare % 8;
 
-            if (position.Board[oneForward].OccupiedBy.Type == PieceType.None)
+            if (IsWithinBounds(oneForward) && position.Board[oneForward].OccupiedBy.Type == PieceType.None)
             {
                 if (!GettingOpponentActivity) // When generating the opponent's moves, we don't need to check the squares in front of the pawns
                 {
@@ -805,7 +805,7 @@
 
                         if (leftDif == 1) // A flank pawn hasn't been pushed
                         {
-                            if (position.Board[twoForwardOneLeft].OccupiedBy.Type == PieceType.Pawn)
+                            if (IsWithinBounds(twoForwardOneLeft) && position.Board[twoForwardOneLeft].OccupiedBy.Type == PieceType.Pawn)
                             {
                                 enPassantPossible = true;
                             }
@@ -813,7 +813,7 @@
 
                         if (rightDif == 1)
                         {
-                            if (position.Board[twoForwardOneRight].OccupiedBy.Type == PieceType.Pawn)
+                            if (IsWithinBounds(twoForwardOneRight) && position.Board[twoForwardOneRight].OccupiedBy.Type == PieceType.Pawn)
                             {
                                 enPassantPossible = true;
                             }
@@ -848,6 +848,11 @@
                 position.OpponentActivity.Any(kvp => kvp.Value.Contains(position.BlackKingPosition));
         }
 
+        private static bool IsWithinBounds(int toSquare)
+        {
+            return (toSquare >= 0 && toSquare <= 63);
+        }
+
         private static List<Move> GenerateDiagonalPawnCaptures(int fromSquare, int diagonalCaptureIndex, Direction direction)
         {
             List<Move> pawnMoves = new List<Move>();
@@ -855,7 +860,7 @@
             int captureCol = diagonalCaptureIndex % 8;
             int captureColDif = Math.Abs(captureCol - currentCol);
 
-            if ((diagonalCaptureIndex > -1 && diagonalCaptureIndex < 64) && captureColDif == 1)  // Borders are in order
+            if (IsWithinBounds(diagonalCaptureIndex) && captureColDif == 1)  // Borders are in order
             {
                 if (!GettingOpponentActivity)
                 {
