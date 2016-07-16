@@ -1,10 +1,12 @@
 ﻿namespace butnotquite.Tests
 {
+    using Core;
     using Defaults;
     using Models;
     using Utils;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System.Collections.Generic;
 
     [TestClass]
     public class ChessboardTests
@@ -47,6 +49,89 @@
             Assert.AreEqual(4, positionThree.BlackKingPosition);
             Assert.AreEqual(18, positionThree.EnPassantSquare);
             Assert.AreEqual(0, positionThree.FiftyMoveCounter);
+
+            Chessboard positionFour = Utils.LoadPositionFromFenString("3k4/1q6/8/2Q1r3/2PN1P2/3p1K2/8/8 w - - 38 72");
+
+            Assert.AreEqual(72, positionFour.MoveCounter);
+            Assert.AreEqual(Color.White, positionFour.SideToMove);
+            Assert.AreEqual(Color.Black, positionFour.OppositeColor);
+            Assert.AreEqual(false, positionFour.WhiteCanCastle);
+            Assert.AreEqual(false, positionFour.BlackCanCastle);
+            Assert.AreEqual(45, positionFour.WhiteKingPosition);
+            Assert.AreEqual(3, positionFour.BlackKingPosition);
+            Assert.AreEqual(-1, positionFour.EnPassantSquare);
+            Assert.AreEqual(38, positionFour.FiftyMoveCounter);
+        }
+
+        [TestMethod]
+        public void Chessboard_ShouldRecordCorrectValuesAfterMakeMove()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("3k4/4q3/8/2Q1r3/2PN1P2/3p1K2/8/8 b - - 38 72");
+
+            position.MakeMove(12, 9, Direction.Horizontal);
+
+            Assert.AreEqual(position.Board[12].OccupiedBy.Type, PieceType.None);
+            Assert.AreEqual(position.Board[12].OccupiedBy.Position, -1);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Type, PieceType.Queen);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Position, 9);
+        }
+
+        [TestMethod]
+        public void Chessboard_ShouldRecordCorrectValuesAfterUndoMove()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("3k4/4q3/8/2Q1r3/2PN1P2/3p1K2/8/8 b - - 38 72");
+            Move queenMove = new Move(12, 9, Direction.Horizontal);
+
+            Assert.AreEqual(position.Board[9].OccupiedBy.Type, PieceType.None);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Color, Color.None);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Position, -1);
+            Assert.AreEqual(position.Board[12].OccupiedBy.Type, PieceType.Queen);
+            Assert.AreEqual(position.Board[12].OccupiedBy.Color, Color.Black);
+            Assert.AreEqual(position.Board[12].OccupiedBy.Position, 12);
+
+            position.MakeMove(12, 9, Direction.Horizontal);
+
+            Assert.AreEqual(position.Board[12].OccupiedBy.Type, PieceType.None);
+            Assert.AreEqual(position.Board[12].OccupiedBy.Type, PieceType.None);
+            Assert.AreEqual(position.Board[12].OccupiedBy.Position, -1);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Type, PieceType.Queen);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Color, Color.Black);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Position, 9);
+
+            position.UndoMove(queenMove);
+
+            Assert.AreEqual(position.Board[9].OccupiedBy.Type, position.LastMoveCapturedPiece.Type);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Color, position.LastMoveCapturedPiece.Color);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Position, position.LastMoveCapturedPiece.Position);
+            Assert.AreEqual(position.Board[12].OccupiedBy.Type, PieceType.Queen);
+            Assert.AreEqual(position.Board[12].OccupiedBy.Color, Color.Black);
+            Assert.AreEqual(position.Board[12].OccupiedBy.Position, 12);            
+        }
+
+        [TestMethod]
+        public void Chessboard_ShouldCorrectlyIdentifyWhenKingInCheck()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("3k4/4q3/8/2Q1r3/2PN1P2/3p1K2/8/8 b - - 38 72");
+
+            position.MakeMove(12, 9, Direction.Horizontal);
+
+            List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+
+            Assert.AreEqual(true, position.WhiteInCheck);
+            Assert.AreEqual(false, position.BlackInCheck);
+        }
+
+        [TestMethod]
+        public void Chessboard_ShouldCorrectlyIdentifyWhenKingInCheckByKnight()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("3k4/5q1n/P7/2Q1r3/2PN1P2/3p1K2/8/8 b - - 15 58");
+
+            position.MakeMove(15, 30, Direction.L);
+
+            List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+
+            Assert.AreEqual(true, position.WhiteInCheck);
+            Assert.AreEqual(false, position.BlackInCheck);
         }
     }
 }

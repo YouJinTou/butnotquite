@@ -14,9 +14,7 @@
         private static readonly HashSet<int> InitialBlackPawnSquares = new HashSet<int> { 8, 9, 10, 11, 12, 13, 14, 15 };
 
         private static Chessboard position;
-        private static bool GettingOpponentActivity; // Used when generating the opponent's moves for the current position
-
-        #region Move Generation
+        private static bool gettingOpponentActivity;
 
         #region Main
 
@@ -25,11 +23,16 @@
             List<Move> availableMoves = new List<Move>(300);
             position = currentPosition;
 
-            if (!GettingOpponentActivity)
+            if (!gettingOpponentActivity)
             {
-                GettingOpponentActivity = true;
+                gettingOpponentActivity = true;
 
                 GetCurrentOpponentActivity();
+
+                if (KingInCheck())
+                {
+                    position.KingInCheck = true;
+                }
             }
 
             for (int i = 0; i < 64; i++)
@@ -68,9 +71,9 @@
                 }
             }
 
-            if (!GettingOpponentActivity)
+            if (!gettingOpponentActivity)
             {
-                PinChecker.RemoveIllegalMoves(position, availableMoves);
+                IllegalMovesFilter.RemoveIllegalMoves(position, availableMoves);
             }
 
             return availableMoves;
@@ -80,12 +83,10 @@
         {
             position.OpponentActivity.Clear();
 
-            // Reverse the colors
-            position.SideToMove = (position.SideToMove == Color.White) ? Color.Black : Color.White;
-            position.OppositeColor = (position.SideToMove == Color.White) ? Color.Black : Color.White;
+            position.SwapSides();
 
             List<Move> availableMoves = GetAvailableMoves(position);
-            GettingOpponentActivity = false;
+            gettingOpponentActivity = false;
 
             for (int i = 0; i < availableMoves.Count; i++)
             {
@@ -106,9 +107,7 @@
                 position.OpponentActivity[currentSquare.OccupiedBy].Add(availableMoves[i].ToSquare);
             }
 
-            // Undo color reversion
-            position.SideToMove = (position.SideToMove == Color.White) ? Color.Black : Color.White;
-            position.OppositeColor = (position.SideToMove == Color.White) ? Color.Black : Color.White;
+            position.SwapSides();
         }
 
         #endregion
@@ -133,10 +132,10 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
-                    if (GettingOpponentActivity)
+                    if (gettingOpponentActivity)
                     {
-                        movesUp.Add(new Move(fromSquare, location, Direction.Vertical));
-                    }
+                        movesUp.Add(new Move(fromSquare, location, Direction.Vertical));                       
+                    }                   
 
                     break;
                 }
@@ -144,6 +143,27 @@
                 if (square.OccupiedBy.Color == position.OppositeColor)
                 {
                     movesUp.Add(new Move(fromSquare, location, Direction.Vertical));
+
+                    if (square.OccupiedBy.Type == PieceType.King)
+                    {
+                        int locationPastKing = location - 8;
+
+                        while (locationPastKing <= topBorder)
+                        {
+                            Square squarePastKing = position.Board[locationPastKing];
+
+                            if (squarePastKing.OccupiedBy.Color == position.SideToMove || squarePastKing.OccupiedBy.Type == PieceType.None)
+                            {
+                                movesUp.Add(new Move(fromSquare, locationPastKing, Direction.Vertical));
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            locationPastKing -= 8;
+                        }
+                    }
 
                     break;
                 }
@@ -170,10 +190,10 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
-                    if (GettingOpponentActivity)
+                    if (gettingOpponentActivity)
                     {
-                        movesDown.Add(new Move(fromSquare, location, Direction.Vertical));
-                    }
+                        movesDown.Add(new Move(fromSquare, location, Direction.Vertical));                        
+                    }                   
 
                     break;
                 }
@@ -181,6 +201,27 @@
                 if (square.OccupiedBy.Color == position.OppositeColor)
                 {
                     movesDown.Add(new Move(fromSquare, location, Direction.Vertical));
+
+                    if (square.OccupiedBy.Type == PieceType.King)
+                    {
+                        int locationPastKing = location + 8;
+
+                        while (locationPastKing <= bottomBorder)
+                        {
+                            Square squarePastKing = position.Board[locationPastKing];
+
+                            if (squarePastKing.OccupiedBy.Color == position.SideToMove || squarePastKing.OccupiedBy.Type == PieceType.None)
+                            {
+                                movesDown.Add(new Move(fromSquare, locationPastKing, Direction.Vertical));
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            locationPastKing += 8;
+                        }
+                    }
 
                     break;
                 }
@@ -207,10 +248,10 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
-                    if (GettingOpponentActivity)
+                    if (gettingOpponentActivity)
                     {
                         movesLeft.Add(new Move(fromSquare, location, Direction.Horizontal));
-                    }
+                    }                    
 
                     break;
                 }
@@ -218,6 +259,27 @@
                 if (square.OccupiedBy.Color == position.OppositeColor)
                 {
                     movesLeft.Add(new Move(fromSquare, location, Direction.Horizontal));
+
+                    if (square.OccupiedBy.Type == PieceType.King)
+                    {
+                        int locationPastKing = location - 1;
+
+                        while (locationPastKing <= leftBorder)
+                        {
+                            Square squarePastKing = position.Board[locationPastKing];
+
+                            if (squarePastKing.OccupiedBy.Color == position.SideToMove || squarePastKing.OccupiedBy.Type == PieceType.None)
+                            {
+                                movesLeft.Add(new Move(fromSquare, locationPastKing, Direction.Horizontal));
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            locationPastKing--;
+                        }
+                    }
 
                     break;
                 }
@@ -244,10 +306,10 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
-                    if (GettingOpponentActivity)
+                    if (gettingOpponentActivity)
                     {
-                        movesRight.Add(new Move(fromSquare, location, Direction.Horizontal));
-                    }
+                        movesRight.Add(new Move(fromSquare, location, Direction.Horizontal));                       
+                    }                    
 
                     break;
                 }
@@ -255,6 +317,27 @@
                 if (square.OccupiedBy.Color == position.OppositeColor)
                 {
                     movesRight.Add(new Move(fromSquare, location, Direction.Horizontal));
+
+                    if (square.OccupiedBy.Type == PieceType.King)
+                    {
+                        int locationPastKing = location + 1;
+
+                        while (locationPastKing <= rightBorder)
+                        {
+                            Square squarePastKing = position.Board[locationPastKing];
+
+                            if (squarePastKing.OccupiedBy.Color == position.SideToMove || squarePastKing.OccupiedBy.Type == PieceType.None)
+                            {
+                                movesRight.Add(new Move(fromSquare, locationPastKing, Direction.Horizontal));
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            locationPastKing++;
+                        }
+                    }
 
                     break;
                 }
@@ -285,10 +368,10 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
-                    if (GettingOpponentActivity)
+                    if (gettingOpponentActivity)
                     {
-                        movesUpRight.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));
-                    }
+                        movesUpRight.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));                        
+                    }                   
 
                     break;
                 }
@@ -296,6 +379,27 @@
                 if (square.OccupiedBy.Color == position.OppositeColor)
                 {
                     movesUpRight.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));
+
+                    if (square.OccupiedBy.Type == PieceType.King)
+                    {
+                        int locationPastKing = location - 7;
+
+                        while (!northEastBordersAdjusted.Contains(locationPastKing))
+                        {
+                            Square squarePastKing = position.Board[locationPastKing];
+
+                            if (squarePastKing.OccupiedBy.Color == position.SideToMove || squarePastKing.OccupiedBy.Type == PieceType.None)
+                            {
+                                movesUpRight.Add(new Move(fromSquare, locationPastKing, Direction.DownLeftUpRight));
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            locationPastKing -= 7;
+                        }
+                    }
 
                     break;
                 }
@@ -327,9 +431,9 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
-                    if (GettingOpponentActivity)
+                    if (gettingOpponentActivity)
                     {
-                        movesDownLeft.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));
+                        movesDownLeft.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));                                                
                     }
 
                     break;
@@ -338,6 +442,27 @@
                 if (square.OccupiedBy.Color == position.OppositeColor)
                 {
                     movesDownLeft.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));
+
+                    if (square.OccupiedBy.Type == PieceType.King)
+                    {
+                        int locationPastKing = location + 7;
+
+                        while (!southWestBordersAdjusted.Contains(locationPastKing))
+                        {
+                            Square squarePastKing = position.Board[locationPastKing];
+
+                            if (squarePastKing.OccupiedBy.Color == position.SideToMove || squarePastKing.OccupiedBy.Type == PieceType.None)
+                            {
+                                movesDownLeft.Add(new Move(fromSquare, locationPastKing, Direction.DownLeftUpRight));
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            locationPastKing += 7;
+                        }
+                    }
 
                     break;
                 }
@@ -369,9 +494,9 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
-                    if (GettingOpponentActivity)
+                    if (gettingOpponentActivity)
                     {
-                        movesUpLeft.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));
+                        movesUpLeft.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));                                                
                     }
 
                     break;
@@ -380,6 +505,27 @@
                 if (square.OccupiedBy.Color == position.OppositeColor)
                 {
                     movesUpLeft.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));
+
+                    if (square.OccupiedBy.Type == PieceType.King)
+                    {
+                        int locationPastKing = location - 9;
+
+                        while (!northWestBordersAdjusted.Contains(locationPastKing))
+                        {
+                            Square squarePastKing = position.Board[locationPastKing];
+
+                            if (squarePastKing.OccupiedBy.Color == position.SideToMove || squarePastKing.OccupiedBy.Type == PieceType.None)
+                            {
+                                movesUpLeft.Add(new Move(fromSquare, locationPastKing, Direction.DownRightUpLeft));
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            locationPastKing -= 9;
+                        }
+                    }
 
                     break;
                 }
@@ -411,9 +557,9 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
-                    if (GettingOpponentActivity)
+                    if (gettingOpponentActivity)
                     {
-                        movesDownRight.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));
+                        movesDownRight.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));                        
                     }
 
                     break;
@@ -422,6 +568,27 @@
                 if (square.OccupiedBy.Color == position.OppositeColor)
                 {
                     movesDownRight.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));
+
+                    if (square.OccupiedBy.Type == PieceType.King)
+                    {
+                        int locationPastKing = location + 9;
+
+                        while (!southEastBordersAdjusted.Contains(locationPastKing))
+                        {
+                            Square squarePastKing = position.Board[locationPastKing];
+
+                            if (squarePastKing.OccupiedBy.Color == position.SideToMove || squarePastKing.OccupiedBy.Type == PieceType.None)
+                            {
+                                movesDownRight.Add(new Move(fromSquare, locationPastKing, Direction.DownRightUpLeft));
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            locationPastKing += 9;
+                        }
+                    }
 
                     break;
                 }
@@ -440,7 +607,7 @@
         {
             List<Move> kingMoves = new List<Move>();
 
-            if (!GettingOpponentActivity)
+            if (!gettingOpponentActivity)
             {
                 if (CanCastleShort())
                 {
@@ -495,7 +662,7 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
-                    if (GettingOpponentActivity)
+                    if (gettingOpponentActivity)
                     {
                         kingMoves.Add(new Move(fromSquare, toSquare, Direction.SingleSquare));
                     }
@@ -610,7 +777,7 @@
 
                 if (square.OccupiedBy.Color == position.SideToMove)
                 {
-                    if (GettingOpponentActivity)
+                    if (gettingOpponentActivity)
                     {
                         knightMoves.Add(new Move(fromSquare, destination, Direction.SingleSquare));
                     }
@@ -647,7 +814,7 @@
 
             if (IsWithinBounds(oneForward) && position.Board[oneForward].OccupiedBy.Type == PieceType.None)
             {
-                if (!GettingOpponentActivity) // When generating the opponent's moves, we don't need to check the squares in front of the pawns
+                if (!gettingOpponentActivity) // When generating the opponent's moves, we don't need to check the squares in front of the pawns
                 {
                     if (IsPawnPromotion(oneForward))
                     {
@@ -841,19 +1008,38 @@
 
         #region Helpers
 
+        #region Generic
+
         private static bool KingInCheck()
         {
             if (position.SideToMove == Color.White)
             {
                 position.WhiteInCheck = position.OpponentActivity.Any(kvp => kvp.Value.Contains(position.WhiteKingPosition));
+                position.BlackInCheck = false;
 
                 return position.WhiteInCheck;
             }
 
             position.BlackInCheck = position.OpponentActivity.Any(kvp => kvp.Value.Contains(position.BlackKingPosition));
+            position.WhiteInCheck = false;
 
             return position.BlackInCheck;
         }
+
+        private static void ResetSquare(int squareNumber)
+        {
+            Square square = position.Board[squareNumber];
+
+            square.OccupiedBy.Type = PieceType.None;
+            square.OccupiedBy.Color = Color.None;
+            square.OccupiedBy.Value = 0;
+            square.OccupiedBy.Position = -1;
+            square.OccupiedBy.Moves = null;
+        }
+
+        #endregion
+
+        #region Movement
 
         private static bool IsWithinBounds(int toSquare)
         {
@@ -869,7 +1055,7 @@
 
             if (IsWithinBounds(diagonalCaptureIndex) && captureColDif == 1)  // Borders are in order
             {
-                if (!GettingOpponentActivity)
+                if (!gettingOpponentActivity)
                 {
                     if (position.Board[diagonalCaptureIndex].OccupiedBy.Color == position.OppositeColor) // Generating our moves, so we should check if the square is occupied by an enemy piece
                     {
@@ -893,16 +1079,7 @@
             return pawnMoves;
         }
 
-        private static void ResetSquare(int squareNumber)
-        {
-            Square square = position.Board[squareNumber];
 
-            square.OccupiedBy.Type = PieceType.None;
-            square.OccupiedBy.Color = Color.None;
-            square.OccupiedBy.Value = 0;
-            square.OccupiedBy.Position = -1;
-            square.OccupiedBy.Moves = null;
-        }
 
         #endregion
 

@@ -13,11 +13,13 @@
         internal Color OppositeColor;
         internal int Evaluation;
         internal Move MaximizingSideBestMove;
+        internal Piece LastMoveCapturedPiece;
 
         internal IDictionary<Piece, HashSet<int>> OpponentActivity;
 
         internal bool WhiteInCheck;
         internal bool BlackInCheck;
+        internal bool KingInCheck;
         internal int WhiteKingPosition;
         internal int BlackKingPosition;
         internal bool WhiteCanCastle;
@@ -27,7 +29,6 @@
         internal bool RepetitionEnforcable;
         internal int FiftyMoveCounter;
         internal bool FiftyMoveEnforcable;
-        internal bool Stalemate;
 
         internal Move LastMove;
         internal int EnPassantSquare; // To be implemented
@@ -51,47 +52,48 @@
         internal void MakeMove(int fromSquare, int toSquare, Direction direction)
         {
             Piece movingPiece = Utils.MakeDeepCopy(this.Board[fromSquare].OccupiedBy);
+            this.LastMoveCapturedPiece = Utils.MakeDeepCopy(this.Board[toSquare].OccupiedBy);
 
             this.ResetSquare(fromSquare);
             this.Board[toSquare].OccupiedBy = movingPiece;
             movingPiece.Position = toSquare;
 
             this.LastMove = new Move(fromSquare, toSquare, direction);
+            bool isPawn = (movingPiece.Type == PieceType.Pawn);
+            bool isCapture = (LastMoveCapturedPiece.Type != PieceType.None);
+            this.FiftyMoveCounter = (isPawn || isCapture) ? 0 : (this.FiftyMoveCounter + 1);
 
-            this.SideToMove = (this.SideToMove == Color.White) ? Color.Black : Color.White;
-            this.OppositeColor = (this.SideToMove == Color.White) ? Color.Black : Color.White;
+            this.SwapSides();
         }
 
         internal void UndoMove(Move move)
         {
             Piece movingPiece = Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy);
-
-            this.ResetSquare(move.ToSquare);
+            
+            this.Board[move.ToSquare].OccupiedBy = this.LastMoveCapturedPiece;
             this.Board[move.FromSquare].OccupiedBy = movingPiece;
             movingPiece.Position = move.FromSquare;
 
-            this.SideToMove = (this.SideToMove == Color.White) ? Color.Black : Color.White;
-            this.OppositeColor = (this.SideToMove == Color.White) ? Color.Black : Color.White;
+            this.SwapSides();
         }
 
         #region Board Initialization
 
         private void InitializeStartingPosition()
         {
-            Chessboard tempBoard = Utils.LoadPositionFromFenString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            Chessboard tempPosition = Utils.LoadPositionFromFenString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-            this.Board = tempBoard.Board;
+            this.Board = tempPosition.Board;
         }
 
         #endregion
 
         #region Utils
 
-        public void InsertNullMove()
+        internal void SwapSides()
         {
-            Color swap = this.SideToMove;
-            this.SideToMove = OppositeColor;
-            this.OppositeColor = swap;
+            this.SideToMove = (this.SideToMove == Color.White) ? Color.Black : Color.White;
+            this.OppositeColor = (this.SideToMove == Color.White) ? Color.Black : Color.White;
         }
 
         private void ResetSquare(int squareNumber)

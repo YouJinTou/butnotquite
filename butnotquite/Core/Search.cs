@@ -15,7 +15,7 @@
         {
             MaximizingSide = position.SideToMove;
 
-            position.InsertNullMove();
+            position.SwapSides();
         }
 
         internal static int DoAlphaBetaPruning(int depth, int alpha, int beta, Chessboard position)
@@ -72,7 +72,7 @@
 
         private static int GetGameStateScore(Chessboard position, List<Move> availableMoves)
         {
-            if (position.RepetitionEnforcable || position.FiftyMoveEnforcable || position.Stalemate)
+            if (position.RepetitionEnforcable || position.FiftyMoveEnforcable)
             {
                 return 0;
             }
@@ -97,7 +97,7 @@
                 }
             }
 
-            return 0;
+            return 0; // Stalemate
         }
     }
 }

@@ -7,15 +7,90 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    internal static class PinChecker
+    internal static class IllegalMovesFilter
     {
         private static Chessboard position;
+        private static List<Move> availableMoves;
 
-        internal static void RemoveIllegalMoves(Chessboard currentPosition, List<Move> availableMoves)
+        internal static List<Move> RemoveIllegalMoves(Chessboard currentPosition, List<Move> currentAvailableMoves)
+        {
+            position = currentPosition;
+            availableMoves = currentAvailableMoves;
+
+            RemoveIllegalMovesInCheck();
+            RemoveMovesDueToPin();
+
+            return availableMoves;
+        }
+
+        #region Checks
+
+        private static void RemoveIllegalMovesInCheck()
+        {
+            if (!position.KingInCheck)
+            {
+                return;
+            }
+
+            HashSet<int> lineOfFire = GetLineOfFire();
+            List<Move> kingMoves = availableMoves.Where(m => m.Direction == Direction.SingleSquare).ToList();
+
+            availableMoves.RemoveAll(m => !lineOfFire.Contains(m.ToSquare));
+            availableMoves.AddRange(kingMoves);
+        }
+
+        private static HashSet<int> GetLineOfFire()
+        {
+            int kingPosition = GetKingPosition();
+            int attackerPosition = position.OpponentActivity
+                .FirstOrDefault(kvp => kvp.Value.Contains(kingPosition))
+                .Key
+                .Position;
+            HashSet<int> checkSquares = new HashSet<int>();
+
+            if (position.Board[attackerPosition].OccupiedBy.Type == PieceType.Knight)
+            {
+                checkSquares.Add(attackerPosition);
+
+                return checkSquares; // Can't block a knight's check
+            }
+
+            int kingRow = kingPosition / 8;
+            int kingCol = kingPosition % 8;
+            int attackerRow = attackerPosition / 8;
+            int attackerCol = attackerPosition % 8;
+            int increment = 0;
+
+            if (kingRow == attackerRow)
+            {
+                increment = 1;
+            }
+            else if (kingCol == attackerCol)
+            {
+                increment = 8;
+            }
+            else
+            {
+                int positionDifference = Math.Abs(kingPosition - attackerPosition);
+                increment = (positionDifference % 9 == 0) ? 9 : 7;
+            }
+
+            for (int checkSquare = attackerPosition; checkSquare < kingPosition; checkSquare += increment)
+            {
+                checkSquares.Add(checkSquare);
+            }
+
+            return checkSquares;
+        }
+
+        #endregion        
+
+        #region Pins
+
+        private static void RemoveMovesDueToPin()
         {
             IDictionary<int, List<Direction>> movesToRemove = new Dictionary<int, List<Direction>>();
             HashSet<int> coveredMoves = new HashSet<int>();
-            position = currentPosition;
 
             for (int i = 0; i < availableMoves.Count; i++)
             {
@@ -72,6 +147,10 @@
                 return pinDirections;
             }
 
+            int kingPosition = GetKingPosition();
+            int kingCol = kingPosition % 8;
+            int pieceCol = fromSquare % 8;
+
             for (int i = 0; i < possiblePins.Length; i++)
             {
                 if (possiblePins[i])
@@ -82,20 +161,28 @@
                             if (PinExists(fromSquare, Direction.DownLeftUpRight))
                             {
                                 pinDirections.Add(Direction.DownLeftUpRight);
-                                pinDirections.Add(Direction.Vertical);
                                 pinDirections.Add(Direction.Horizontal);
                                 pinDirections.Add(Direction.L);
                                 pinDirections.Add(Direction.EnPassant);
+
+                                if (position.Board[fromSquare].OccupiedBy.Type == PieceType.Pawn && kingCol != pieceCol)
+                                {
+                                    pinDirections.Add(Direction.Vertical);
+                                }
                             }
                             break;
                         case 1: // Second diagonal
                             if (PinExists(fromSquare, Direction.DownRightUpLeft))
                             {
                                 pinDirections.Add(Direction.DownRightUpLeft);
-                                pinDirections.Add(Direction.Vertical);
                                 pinDirections.Add(Direction.Horizontal);
                                 pinDirections.Add(Direction.L);
                                 pinDirections.Add(Direction.EnPassant);
+
+                                if (position.Board[fromSquare].OccupiedBy.Type == PieceType.Pawn && kingCol != pieceCol)
+                                {
+                                    pinDirections.Add(Direction.Vertical);
+                                }
 
                                 return pinDirections;
                             }
@@ -241,6 +328,8 @@
 
             return true;
         }
+
+        #endregion
 
         #region Helpers
 

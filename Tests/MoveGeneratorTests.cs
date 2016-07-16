@@ -893,5 +893,73 @@
         }
 
         #endregion
+
+        #region In Check
+
+        [TestMethod]
+        public void InCheck_ShouldCorrectlyListAllLegalMovesWhileInCheck()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("3k4/5q1n/8/2Q2r2/1NPP1R2/3p1K2/8/8 b - - 15 58");
+
+            position.MakeMove(13, 9, Direction.Horizontal);
+
+            List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+            HashSet<int> kingIllegalSquares = new HashSet<int>() { 36, 52, 54, 63 };
+            HashSet<int> kingLegalSquares = new HashSet<int>() { 38, 44, 46, 53 };
+
+            //Assert.IsTrue(availableMoves.Count == 8);
+            Assert.IsTrue(availableMoves.Any(
+                m => m.FromSquare == 26 && m.ToSquare == 18));
+            Assert.IsTrue(availableMoves.Any(
+                m => m.FromSquare == 26 && m.ToSquare == 27));
+            Assert.IsTrue(availableMoves.Any(
+                m => m.FromSquare == 33 && m.ToSquare == 18));
+            Assert.IsTrue(availableMoves.Any(
+                m => m.FromSquare == 33 && m.ToSquare == 27));
+            Assert.IsTrue(availableMoves.Any(
+                m => m.FromSquare == 35 && m.ToSquare == 27));
+
+            foreach (var illegalSquare in kingIllegalSquares)
+            {
+                Assert.IsTrue(availableMoves
+                    .Where(m => m.Direction == Direction.SingleSquare)
+                    .All(m => m.FromSquare == 45 && m.ToSquare != illegalSquare));
+            }
+
+            foreach (var legalSquare in kingLegalSquares)
+            {
+                Assert.IsTrue(availableMoves
+                    .Where(m => m.Direction == Direction.SingleSquare)
+                    .Any(m => m.FromSquare == 45 && m.ToSquare == legalSquare));
+            }
+        }
+
+        [TestMethod]
+        public void InCheck_ShouldCorrectlyListAllLegalMovesWhileInCheckByKnight()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("3k4/5q1n/P7/2Q1r3/2PN1P2/3p1K2/8/8 b - - 15 58");
+
+            position.MakeMove(15, 30, Direction.L);
+
+            List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+            HashSet<int> kingIllegalSquares = new HashSet<int>() { 36, 37, 44, 52, 60 };
+            HashSet<int> kingLegalSquares = new HashSet<int>() { 38, 46, 53, 54 };
+
+            foreach (var illegalSquare in kingIllegalSquares)
+            {
+                Assert.IsTrue(availableMoves
+                    .Where(m => m.Direction == Direction.SingleSquare)
+                    .All(m => m.FromSquare == 45 && m.ToSquare != illegalSquare));
+            }
+
+            foreach (var legalSquare in kingLegalSquares)
+            {
+                Assert.IsTrue(availableMoves
+                    .Where(m => m.Direction == Direction.SingleSquare)
+                    .Any(m => m.FromSquare == 45 && m.ToSquare == legalSquare));
+            }
+        }
+
+        #endregion
     }
 }
