@@ -12,9 +12,12 @@
         internal Color SideToMove;
         internal Color OppositeColor;
         internal int Evaluation;
+        internal Move MaximizingSideBestMove;
 
         internal IDictionary<Piece, HashSet<int>> OpponentActivity;
 
+        internal bool WhiteInCheck;
+        internal bool BlackInCheck;
         internal int WhiteKingPosition;
         internal int BlackKingPosition;
         internal bool WhiteCanCastle;
@@ -83,6 +86,13 @@
         #endregion
 
         #region Utils
+
+        public void InsertNullMove()
+        {
+            Color swap = this.SideToMove;
+            this.SideToMove = OppositeColor;
+            this.OppositeColor = swap;
+        }
 
         private void ResetSquare(int squareNumber)
         {

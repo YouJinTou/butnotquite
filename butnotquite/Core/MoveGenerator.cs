@@ -688,7 +688,7 @@
         {
             if (position.SideToMove == Color.White)
             {
-                if (!position.WhiteCanCastle || KingIsInCheck() || position.WhiteKingPosition != 60)
+                if (!position.WhiteCanCastle || KingInCheck() || position.WhiteKingPosition != 60)
                 {
                     return false;
                 }
@@ -707,7 +707,7 @@
                 return true;
             }
 
-            if (!position.BlackCanCastle || KingIsInCheck() || position.BlackKingPosition != 4)
+            if (!position.BlackCanCastle || KingInCheck() || position.BlackKingPosition != 4)
             {
                 return false;
             }
@@ -730,7 +730,7 @@
         {
             if (position.SideToMove == Color.White)
             {
-                if (!position.WhiteCanCastle || KingIsInCheck() || position.WhiteKingPosition != 60)
+                if (!position.WhiteCanCastle || KingInCheck() || position.WhiteKingPosition != 60)
                 {
                     return false;
                 }
@@ -754,7 +754,7 @@
                 return true;
             }
 
-            if (!position.BlackCanCastle || KingIsInCheck() || position.BlackKingPosition != 4)
+            if (!position.BlackCanCastle || KingInCheck() || position.BlackKingPosition != 4)
             {
                 return false;
             }
@@ -841,11 +841,18 @@
 
         #region Helpers
 
-        private static bool KingIsInCheck()
+        private static bool KingInCheck()
         {
-            return (position.SideToMove == Color.White) ?
-                position.OpponentActivity.Any(kvp => kvp.Value.Contains(position.WhiteKingPosition)) :
-                position.OpponentActivity.Any(kvp => kvp.Value.Contains(position.BlackKingPosition));
+            if (position.SideToMove == Color.White)
+            {
+                position.WhiteInCheck = position.OpponentActivity.Any(kvp => kvp.Value.Contains(position.WhiteKingPosition));
+
+                return position.WhiteInCheck;
+            }
+
+            position.BlackInCheck = position.OpponentActivity.Any(kvp => kvp.Value.Contains(position.BlackKingPosition));
+
+            return position.BlackInCheck;
         }
 
         private static bool IsWithinBounds(int toSquare)

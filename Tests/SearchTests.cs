@@ -23,7 +23,8 @@
                 new Move(1, 18, Direction.L) // Nc6
             };
 
-            //Search.GetAlphaBeta(0, int.MinValue, int.MaxValue, position);
+            Search.Initialize(position);
+            Search.DoAlphaBetaPruning(0, int.MinValue, int.MaxValue, position);
         }
     }
 }
