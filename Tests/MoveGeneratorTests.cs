@@ -901,7 +901,7 @@
         {
             Chessboard position = Utils.LoadPositionFromFenString("3k4/5q1n/8/2Q2r2/1NPP1R2/3p1K2/8/8 b - - 15 58");
 
-            position.MakeMove(13, 9, Direction.Horizontal);
+            position.MakeMove(new Move(13, 9, Direction.Horizontal));
 
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
             HashSet<int> kingIllegalSquares = new HashSet<int>() { 36, 52, 54, 63 };
@@ -939,7 +939,7 @@
         {
             Chessboard position = Utils.LoadPositionFromFenString("3k4/5q1n/P7/2Q1r3/2PN1P2/3p1K2/8/8 b - - 15 58");
 
-            position.MakeMove(15, 30, Direction.L);
+            position.MakeMove(new Move(15, 30, Direction.L));
 
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
             HashSet<int> kingIllegalSquares = new HashSet<int>() { 36, 37, 44, 52, 60 };

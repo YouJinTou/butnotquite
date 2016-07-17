@@ -2,6 +2,7 @@
 {
     using Defaults;
     using Models;
+
     using System.Collections.Generic;
 
     internal static class Search

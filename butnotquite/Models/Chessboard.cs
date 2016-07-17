@@ -14,9 +14,9 @@
         internal Color OppositeColor;
         internal int Evaluation;
         internal Move MaximizingSideBestMove;
-        internal Piece LastMoveCapturedPiece;
 
         internal IDictionary<Piece, HashSet<int>> OpponentActivity;
+        internal IDictionary<Move, Piece> DestinationSquares;
 
         internal bool WhiteInCheck;
         internal bool BlackInCheck;
@@ -48,19 +48,21 @@
             this.BlackKingPosition = 4;
 
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
+            this.DestinationSquares = new Dictionary<Move, Piece>();
         }        
 
         internal void MakeMove(Move move)
         {
             Piece movingPiece = Utils.MakeDeepCopy(this.Board[move.FromSquare].OccupiedBy);
-            this.LastMoveCapturedPiece = Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy);
+
+            this.DestinationSquares.Add(move, Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy));
 
             this.ResetSquare(move.FromSquare);
             this.Board[move.ToSquare].OccupiedBy = movingPiece;
             movingPiece.Position = move.ToSquare;
 
             bool isPawn = (movingPiece.Type == PieceType.Pawn);
-            bool isCapture = (this.LastMoveCapturedPiece.Type != PieceType.None);
+            bool isCapture = (this.Board[move.ToSquare].OccupiedBy.Type != PieceType.None);
             this.FiftyMoveCounter = (isPawn || isCapture) ? 0 : (this.FiftyMoveCounter + 1);
             this.LastMove = new Move(move.FromSquare, move.ToSquare, move.Direction);
 
@@ -70,10 +72,12 @@
         internal void UndoMove(Move move)
         {
             Piece movingPiece = Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy);
-            
-            this.Board[move.ToSquare].OccupiedBy = this.LastMoveCapturedPiece;
+
+            this.Board[move.ToSquare].OccupiedBy = this.DestinationSquares[move];//.FirstOrDefault(kvp => kvp.Key.Equals(move)).Value;
             this.Board[move.FromSquare].OccupiedBy = movingPiece;
             movingPiece.Position = move.FromSquare;
+
+            this.DestinationSquares.Remove(move);
 
             this.SwapSides();
         }

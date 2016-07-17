@@ -24,7 +24,6 @@
             };
 
             Search.Initialize(position);
-            Search.DoAlphaBetaPruning(0, int.MinValue, int.MaxValue, position);
         }
     }
 }

@@ -68,7 +68,7 @@
         {
             Chessboard position = Utils.LoadPositionFromFenString("3k4/4q3/8/2Q1r3/2PN1P2/3p1K2/8/8 b - - 38 72");
 
-            position.MakeMove(12, 9, Direction.Horizontal);
+            position.MakeMove(new Move(12, 9, Direction.Horizontal));
 
             Assert.AreEqual(position.Board[12].OccupiedBy.Type, PieceType.None);
             Assert.AreEqual(position.Board[12].OccupiedBy.Position, -1);
@@ -89,7 +89,7 @@
             Assert.AreEqual(position.Board[12].OccupiedBy.Color, Color.Black);
             Assert.AreEqual(position.Board[12].OccupiedBy.Position, 12);
 
-            position.MakeMove(12, 9, Direction.Horizontal);
+            position.MakeMove(queenMove);
 
             Assert.AreEqual(position.Board[12].OccupiedBy.Type, PieceType.None);
             Assert.AreEqual(position.Board[12].OccupiedBy.Type, PieceType.None);
@@ -100,9 +100,9 @@
 
             position.UndoMove(queenMove);
 
-            Assert.AreEqual(position.Board[9].OccupiedBy.Type, position.LastMoveCapturedPiece.Type);
-            Assert.AreEqual(position.Board[9].OccupiedBy.Color, position.LastMoveCapturedPiece.Color);
-            Assert.AreEqual(position.Board[9].OccupiedBy.Position, position.LastMoveCapturedPiece.Position);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Type, PieceType.None);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Color, Color.None);
+            Assert.AreEqual(position.Board[9].OccupiedBy.Position, -1);
             Assert.AreEqual(position.Board[12].OccupiedBy.Type, PieceType.Queen);
             Assert.AreEqual(position.Board[12].OccupiedBy.Color, Color.Black);
             Assert.AreEqual(position.Board[12].OccupiedBy.Position, 12);            
@@ -113,7 +113,7 @@
         {
             Chessboard position = Utils.LoadPositionFromFenString("3k4/4q3/8/2Q1r3/2PN1P2/3p1K2/8/8 b - - 38 72");
 
-            position.MakeMove(12, 9, Direction.Horizontal);
+            position.MakeMove(new Move(12, 9, Direction.Horizontal));
 
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
 
@@ -126,7 +126,7 @@
         {
             Chessboard position = Utils.LoadPositionFromFenString("3k4/5q1n/P7/2Q1r3/2PN1P2/3p1K2/8/8 b - - 15 58");
 
-            position.MakeMove(15, 30, Direction.L);
+            position.MakeMove(new Move(15, 30, Direction.L));
 
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
 
