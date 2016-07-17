@@ -8,17 +8,21 @@
     internal static class Search
     {
         internal const int MaxDepth = 4;
-
+        
         private static Color MaximizingSide;
 
         internal static void Initialize(Chessboard position)
         {
             MaximizingSide = position.SideToMove;
+            
+            position.SwapSides();
+
+            GetAlphaBetaScore(0, int.MinValue, int.MaxValue, position);
 
             position.SwapSides();
         }
 
-        internal static int DoAlphaBetaPruning(int depth, int alpha, int beta, Chessboard position)
+        private static int GetAlphaBetaScore(int depth, int alpha, int beta, Chessboard position)
         {
             if (depth == MaxDepth)
             {
@@ -40,7 +44,7 @@
 
                 position.MakeMove(currentMove.FromSquare, currentMove.ToSquare, currentMove.Direction);
 
-                int score = DoAlphaBetaPruning(depth + 1, alpha, beta, position);
+                int score = GetAlphaBetaScore(depth + 1, alpha, beta, position);
 
                 position.UndoMove(currentMove);
 

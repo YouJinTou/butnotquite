@@ -35,7 +35,7 @@
             switch (type)
             {
                 case PieceType.King:
-                    return int.MaxValue;
+                    return short.MaxValue;
                 case PieceType.Queen:
                     return 900;
                 case PieceType.Rook:

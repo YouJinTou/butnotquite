@@ -3,6 +3,7 @@
     using Defaults;
     using Utils;
 
+    using System;
     using System.Collections.Generic;
 
     internal sealed class Chessboard
@@ -94,6 +95,54 @@
         {
             this.SideToMove = (this.SideToMove == Color.White) ? Color.Black : Color.White;
             this.OppositeColor = (this.SideToMove == Color.White) ? Color.Black : Color.White;
+        }
+
+        internal void Print()
+        {
+            Console.Clear();
+
+            for (int square = 0; square < this.Board.Length; square++)
+            {
+                int col = square % 8;
+
+                if (col == 0)
+                {
+                    Console.WriteLine();
+                }
+
+                Console.Write(this.GetLetterFromPiece(this.Board[square].OccupiedBy).ToString().PadRight(3));
+            }
+        }
+
+        private char GetLetterFromPiece(Piece piece)
+        {
+            char letter = '#';
+
+            switch (piece.Type)
+            {
+                case PieceType.King:
+                    letter = 'k';
+                    break;
+                case PieceType.Queen:
+                    letter = 'q';
+                    break;
+                case PieceType.Rook:
+                    letter = 'r';
+                    break;
+                case PieceType.Bishop:
+                    letter = 'b';
+                    break;
+                case PieceType.Knight:
+                    letter = 'n';
+                    break;
+                case PieceType.Pawn:
+                    letter = 'p';
+                    break;
+                default:
+                    return '#';
+            }
+
+            return (piece.Color == Color.White) ? char.ToUpper(letter) : letter;
         }
 
         private void ResetSquare(int squareNumber)

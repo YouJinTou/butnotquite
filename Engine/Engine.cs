@@ -7,31 +7,29 @@
     using System;
     using System.Diagnostics;
 
-    internal static class Engine
+    internal sealed class Engine
     {
         public static void Main()
         {
+            PlayEngineGame();
         }
 
         private static void PlayEngineGame()
         {
-            Chessboard startingPosition = Utils.LoadPositionFromFenString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            Chessboard position = Utils.LoadPositionFromFenString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
             while (true)
             {
+                Search.Initialize(position);
 
+                position.MakeMove(
+                    position.LastMove.FromSquare, 
+                    position.LastMove.ToSquare, 
+                    position.LastMove.Direction);
+                position.Print();
+
+                Console.ReadLine();
             }
-        }
-
-        private static void PrintPosition(Chessboard position)
-        {
-            for (int row = 0; row < 8; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-
-                }
-            }
-        }
+        }        
     }
 }

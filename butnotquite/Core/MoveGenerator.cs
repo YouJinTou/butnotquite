@@ -1079,8 +1079,6 @@
             return pawnMoves;
         }
 
-
-
         #endregion
 
         #endregion
