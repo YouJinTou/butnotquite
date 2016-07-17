@@ -8,6 +8,7 @@
         internal int ToSquare;
         internal Direction Direction;
         internal int Score;
+        //internal Piece LastMoveCapturedPiece;
 
         internal Piece PromotionPiece;
 
@@ -23,6 +24,7 @@
             this.Direction = direction;
 
             this.Score = 0;
+            //this.LastMoveCapturedPiece = new Piece();
             this.PromotionPiece = new Piece();
             this.KingFromSquare = -1;
             this.KingToSquare = -1;
@@ -49,6 +51,7 @@
             this.FromSquare = -1; // The initial move is the king's, not the rook's
             this.ToSquare = -1;
             this.Score = 0;
+            //this.LastMoveCapturedPiece = new Piece();
             this.PromotionPiece = new Piece();
         }
     }

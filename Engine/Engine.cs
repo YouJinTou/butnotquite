@@ -5,7 +5,6 @@
     using Utils;
 
     using System;
-    using System.Diagnostics;
 
     internal sealed class Engine
     {
@@ -22,11 +21,11 @@
             {
                 Search.Initialize(position);
 
-                position.MakeMove(
-                    position.LastMove.FromSquare, 
-                    position.LastMove.ToSquare, 
-                    position.LastMove.Direction);
-                position.Print();
+                position.MakeMove(new Move(
+                    position.MaximizingSideBestMove.FromSquare, 
+                    position.MaximizingSideBestMove.ToSquare, 
+                    position.MaximizingSideBestMove.Direction));
+                position.PrintBoard();
 
                 Console.ReadLine();
             }

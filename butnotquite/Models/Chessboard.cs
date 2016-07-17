@@ -50,19 +50,19 @@
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
         }        
 
-        internal void MakeMove(int fromSquare, int toSquare, Direction direction)
+        internal void MakeMove(Move move)
         {
-            Piece movingPiece = Utils.MakeDeepCopy(this.Board[fromSquare].OccupiedBy);
-            this.LastMoveCapturedPiece = Utils.MakeDeepCopy(this.Board[toSquare].OccupiedBy);
+            Piece movingPiece = Utils.MakeDeepCopy(this.Board[move.FromSquare].OccupiedBy);
+            this.LastMoveCapturedPiece = Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy);
 
-            this.ResetSquare(fromSquare);
-            this.Board[toSquare].OccupiedBy = movingPiece;
-            movingPiece.Position = toSquare;
+            this.ResetSquare(move.FromSquare);
+            this.Board[move.ToSquare].OccupiedBy = movingPiece;
+            movingPiece.Position = move.ToSquare;
 
-            this.LastMove = new Move(fromSquare, toSquare, direction);
             bool isPawn = (movingPiece.Type == PieceType.Pawn);
-            bool isCapture = (LastMoveCapturedPiece.Type != PieceType.None);
+            bool isCapture = (this.LastMoveCapturedPiece.Type != PieceType.None);
             this.FiftyMoveCounter = (isPawn || isCapture) ? 0 : (this.FiftyMoveCounter + 1);
+            this.LastMove = new Move(move.FromSquare, move.ToSquare, move.Direction);
 
             this.SwapSides();
         }
@@ -97,7 +97,7 @@
             this.OppositeColor = (this.SideToMove == Color.White) ? Color.Black : Color.White;
         }
 
-        internal void Print()
+        internal void PrintBoard()
         {
             Console.Clear();
 
