@@ -148,7 +148,7 @@
                     {
                         int locationPastKing = location - 8;
 
-                        while (locationPastKing <= topBorder)
+                        while (locationPastKing >= topBorder)
                         {
                             Square squarePastKing = position.Board[locationPastKing];
 
@@ -264,7 +264,7 @@
                     {
                         int locationPastKing = location - 1;
 
-                        while (locationPastKing <= leftBorder)
+                        while (locationPastKing >= leftBorder)
                         {
                             Square squarePastKing = position.Board[locationPastKing];
 
@@ -622,6 +622,7 @@
                 if (CanCastleLong())
                 {
                     int kingFromSquare = fromSquare;
+                    position.PrintBoard();
                     int kingDestination = (position.SideToMove == Color.White) ? 58 : 2;
                     int rookFromSquare = (position.SideToMove == Color.White) ? 56 : 0;
                     int rookDestination = (position.SideToMove == Color.White) ? 59 : 3;

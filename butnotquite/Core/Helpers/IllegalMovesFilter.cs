@@ -75,10 +75,15 @@
                 increment = (positionDifference % 9 == 0) ? 9 : 7;
             }
 
-            for (int checkSquare = attackerPosition; checkSquare < kingPosition; checkSquare += increment)
+            int startSquare = Math.Min(kingPosition, attackerPosition);
+            int endSquare = Math.Max(kingPosition, attackerPosition);
+
+            for (int checkSquare = startSquare + increment; checkSquare < endSquare; checkSquare += increment)
             {
                 checkSquares.Add(checkSquare);
             }
+
+            checkSquares.Add(attackerPosition);
 
             return checkSquares;
         }
@@ -127,7 +132,7 @@
         private static HashSet<Direction> GetIllegalDirections(int fromSquare)
         {
             HashSet<Direction> pinDirections = new HashSet<Direction>();
-            List<int> attackers = position.OpponentActivity.Where(kvp =>
+            List<int> attackerPositions = position.OpponentActivity.Where(kvp =>
                (kvp.Key.Type == PieceType.Queen ||
                kvp.Key.Type == PieceType.Rook ||
                kvp.Key.Type == PieceType.Bishop)
@@ -135,12 +140,12 @@
                 .Select(kvp => kvp.Key.Position)
                 .ToList();
 
-            if (attackers.Count == 0)
+            if (attackerPositions.Count == 0)
             {
                 return pinDirections;
             }
 
-            bool[] possiblePins = GetPossiblePins(fromSquare, attackers);
+            bool[] possiblePins = GetPossiblePins(fromSquare, attackerPositions);
 
             if (possiblePins.All(pinIsPossible => !pinIsPossible))
             {
@@ -253,10 +258,10 @@
                     switch (direction)
                     {
                         case 0: // Down-left-up-right
-                            tempPossiblePins[direction] = (squareDifference % 9 == 0) ? true : false;
+                            tempPossiblePins[direction] = (kingRow == pieceRow) ? false : (squareDifference % 9 == 0) ? true : false;
                             break;
                         case 1: // Down-right-up-left
-                            tempPossiblePins[direction] = (squareDifference % 7 == 0) ? true : false;
+                            tempPossiblePins[direction] = (kingRow == pieceRow) ? false : (squareDifference % 7 == 0) ? true : false;
                             break;
                         case 2: // Vertical
                             tempPossiblePins[direction] = (pieceRow == attackerRow) ? true : false;

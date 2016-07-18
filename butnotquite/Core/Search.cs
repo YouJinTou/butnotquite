@@ -14,6 +14,7 @@
         internal static void Initialize(Chessboard position)
         {
             maximizingSide = position.SideToMove;
+            position.MaximizingSideBestMove = new Move();
 
             GetAlphaBetaScore(0, int.MinValue, int.MaxValue, position);
         }
@@ -50,7 +51,10 @@
                     {
                         alpha = score;
 
-                        position.MaximizingSideBestMove = currentMove;
+                        if (depth == 0)
+                        {
+                            position.MaximizingSideBestMove = currentMove;
+                        }
                     }       
                 }
                 else

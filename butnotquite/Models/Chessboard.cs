@@ -5,6 +5,7 @@
 
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     internal sealed class Chessboard
     {
@@ -16,13 +17,11 @@
         internal Move MaximizingSideBestMove;
 
         internal IDictionary<Piece, HashSet<int>> OpponentActivity;
-        internal IDictionary<Move, Piece> DestinationSquares;
+        internal IDictionary<long, Piece> DestinationSquares;
 
         internal bool WhiteInCheck;
         internal bool BlackInCheck;
         internal bool KingInCheck;
-        internal int WhiteKingPosition;
-        internal int BlackKingPosition;
         internal bool WhiteCanCastle;
         internal bool BlackCanCastle;
 
@@ -44,27 +43,48 @@
             this.SideToMove = Color.White;
             this.OppositeColor = Color.Black;
 
-            this.WhiteKingPosition = 60;
-            this.BlackKingPosition = 4;
-
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
-            this.DestinationSquares = new Dictionary<Move, Piece>();
-        }        
+            this.DestinationSquares = new Dictionary<long, Piece>();
+        }
+
+        internal int WhiteKingPosition
+        {
+            get
+            {
+                return this.Board
+                .FirstOrDefault(s => s.OccupiedBy.Type == PieceType.King && s.OccupiedBy.Color == Color.White)
+                .OccupiedBy
+                .Position;
+            }
+        }
+        internal int BlackKingPosition
+        {
+            get
+            {
+                return this.Board
+                .FirstOrDefault(s => s.OccupiedBy.Type == PieceType.King && s.OccupiedBy.Color == Color.Black)
+                .OccupiedBy
+                .Position;
+            }
+        }
+
 
         internal void MakeMove(Move move)
         {
             Piece movingPiece = Utils.MakeDeepCopy(this.Board[move.FromSquare].OccupiedBy);
 
-            this.DestinationSquares.Add(move, Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy));
-
-            this.ResetSquare(move.FromSquare);
-            this.Board[move.ToSquare].OccupiedBy = movingPiece;
-            movingPiece.Position = move.ToSquare;
+            this.DestinationSquares.Add(move.Id, Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy));
 
             bool isPawn = (movingPiece.Type == PieceType.Pawn);
             bool isCapture = (this.Board[move.ToSquare].OccupiedBy.Type != PieceType.None);
-            this.FiftyMoveCounter = (isPawn || isCapture) ? 0 : (this.FiftyMoveCounter + 1);
-            this.LastMove = new Move(move.FromSquare, move.ToSquare, move.Direction);
+            this.FiftyMoveCounter = (isPawn || isCapture) ? 0 : (this.SideToMove == Color.Black) ?
+                (this.FiftyMoveCounter + 1) : this.FiftyMoveCounter;
+            movingPiece.Position = move.ToSquare;
+
+            this.UpdateGameStateInfo(move, movingPiece, "make");
+
+            this.ResetSquare(move.FromSquare);
+            this.Board[move.ToSquare].OccupiedBy = movingPiece;
 
             this.SwapSides();
         }
@@ -73,13 +93,38 @@
         {
             Piece movingPiece = Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy);
 
-            this.Board[move.ToSquare].OccupiedBy = this.DestinationSquares[move];//.FirstOrDefault(kvp => kvp.Key.Equals(move)).Value;
-            this.Board[move.FromSquare].OccupiedBy = movingPiece;
             movingPiece.Position = move.FromSquare;
 
-            this.DestinationSquares.Remove(move);
+            this.UpdateGameStateInfo(move, movingPiece, "undo");
+
+            this.Board[move.ToSquare].OccupiedBy = this.DestinationSquares[move.Id];
+            this.Board[move.FromSquare].OccupiedBy = movingPiece;
+
+            this.DestinationSquares.Remove(move.Id);
 
             this.SwapSides();
+        }
+
+        private void UpdateGameStateInfo(Move move, Piece movingPiece, string moveType)
+        {
+            int increment = (moveType == "make") ? 1 : -1;   
+            this.LastMove = move;
+
+            if (this.SideToMove == Color.Black)
+            {
+                this.MoveCounter = this.MoveCounter + increment;
+            }
+            
+            if (this.WhiteInCheck)
+            {
+                this.WhiteInCheck = false;
+            }
+            else if (this.BlackInCheck)
+            {
+                this.BlackInCheck = false;
+            }
+
+            this.KingInCheck = (this.WhiteInCheck ^ this.BlackInCheck);
         }
 
         #region Board Initialization
@@ -114,9 +159,20 @@
                     Console.WriteLine();
                 }
 
+                if (this.LastMove.FromSquare == square || this.LastMove.ToSquare == square)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                }
+                else
+                {
+                    Console.ResetColor();
+                }
+
                 Console.Write(this.GetLetterFromPiece(this.Board[square].OccupiedBy).ToString().PadRight(3));
             }
         }
+
+        
 
         private char GetLetterFromPiece(Piece piece)
         {

@@ -3,9 +3,11 @@
     using Defaults;
 
     using System;
+    using System.Threading;
 
     internal struct Move : IEquatable<Move>
     {
+        internal long Id;
         internal int FromSquare;
         internal int ToSquare;
         internal Direction Direction;
@@ -18,8 +20,11 @@
         internal int RookFromSquare;
         internal int RookToSquare;
 
+        private static long instanceCount;
+
         internal Move(int fromSquare, int toSquare, Direction direction)
         {
+            this.Id = Interlocked.Increment(ref instanceCount);
             this.FromSquare = fromSquare;
             this.ToSquare = toSquare;
             this.Direction = direction;
@@ -48,6 +53,7 @@
             this.RookToSquare = rookToSquare;
             this.Direction = Direction.Castle;
 
+            this.Id = Interlocked.Increment(ref instanceCount);
             this.FromSquare = -1; // The initial move is the king's, not the rook's
             this.ToSquare = -1;
             this.Score = 0;
@@ -56,9 +62,7 @@
 
         public bool Equals(Move other)
         {
-            return (this.FromSquare == other.FromSquare 
-                && this.ToSquare == other.ToSquare 
-                && this.Direction == other.Direction);
+            return (this.Id == other.Id);
         }
     }
 }

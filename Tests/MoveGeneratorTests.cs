@@ -892,6 +892,22 @@
                 && m.ToSquare == 38));
         }
 
+        [TestMethod]
+        public void Pins_ShouldCorrectlyListAllAvailableMovesUnderCloseCheck()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("1rbq1bnr/pp1kpppp/2p5/P1PP4/Q7/4P3/5PPP/RNB1KBNR w KQ - 0 15");
+
+            position.MakeMove(new Move(32, 18, Direction.DownLeftUpRight));
+
+            List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+
+            Assert.IsTrue(availableMoves.Count == 1);
+            Assert.IsTrue(availableMoves.Any(m => 
+                m.FromSquare == 9 && 
+                m.ToSquare == 18 && 
+                m.Direction == Direction.DownRightUpLeft));
+        }
+
         #endregion
 
         #region In Check

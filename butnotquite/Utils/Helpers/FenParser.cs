@@ -70,12 +70,6 @@
                 (chessPosition.EnPassantSquare + 8) :
                 (chessPosition.EnPassantSquare - 8);
             chessPosition.LastMove = (chessPosition.EnPassantSquare > -1) ? new Move(sourceSquare, targetSquare, Direction.EnPassant) : new Move();   
-            chessPosition.WhiteKingPosition = chessPosition.Board
-                .FirstOrDefault(s => s.OccupiedBy.Type == PieceType.King && s.OccupiedBy.Color == Color.White)
-                .OccupiedBy.Position;
-            chessPosition.BlackKingPosition = chessPosition.Board
-                .FirstOrDefault(s => s.OccupiedBy.Type == PieceType.King && s.OccupiedBy.Color == Color.Black)
-                .OccupiedBy.Position;
 
             return chessPosition;
         }

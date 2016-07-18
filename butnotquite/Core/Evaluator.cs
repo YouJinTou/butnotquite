@@ -9,8 +9,8 @@
 
         internal static int EvaluatePosition(Chessboard currentPosition)
         {
-            position = currentPosition;
             int evaluation = 0;
+            position = currentPosition;
 
             evaluation += EvaluateMaterial();
 
@@ -19,21 +19,29 @@
 
         private static int EvaluateMaterial()
         {
-            int materialScore = 0;
+            int sideToMoveScore = 0;
+            int oppositeSideScore = 0;
 
             for (int i = 0; i < position.Board.Length; i++)
             {
                 Piece currentPiece = position.Board[i].OccupiedBy;
 
-                if (currentPiece.Type == PieceType.None || currentPiece.Color != position.SideToMove)
+                if (currentPiece.Type == PieceType.None)
                 {
                     continue;
                 }
 
-                materialScore += currentPiece.Value;
+                if (currentPiece.Color == position.SideToMove)
+                {
+                    sideToMoveScore += currentPiece.Value;
+                }
+                else
+                {
+                    oppositeSideScore -= currentPiece.Value;
+                }
             }
 
-            return materialScore;
+            return (sideToMoveScore + oppositeSideScore);
         }
     }
 }
