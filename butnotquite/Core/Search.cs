@@ -8,7 +8,6 @@
     internal static class Search
     {
         internal const int MaxDepth = 4;
-
         private static Color maximizingSide;
 
         internal static void Initialize(Chessboard position)
@@ -55,7 +54,7 @@
                         {
                             position.MaximizingSideBestMove = currentMove;
                         }
-                    }       
+                    }
                 }
                 else
                 {

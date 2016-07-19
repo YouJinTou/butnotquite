@@ -17,7 +17,7 @@
         internal Move MaximizingSideBestMove;
 
         internal IDictionary<Piece, HashSet<int>> OpponentActivity;
-        internal IDictionary<long, Piece> DestinationSquares;
+        internal IDictionary<long, Piece[]> MoveSquares;
 
         internal bool WhiteInCheck;
         internal bool BlackInCheck;
@@ -31,7 +31,7 @@
         internal bool FiftyMoveEnforcable;
 
         internal Move LastMove;
-        internal int EnPassantSquare; // To be implemented
+        internal int EnPassantSquare;
 
         internal Chessboard(bool fromFen)
         {
@@ -43,8 +43,11 @@
             this.SideToMove = Color.White;
             this.OppositeColor = Color.Black;
 
+            this.WhiteCanCastle = true;
+            this.BlackCanCastle = true;
+
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
-            this.DestinationSquares = new Dictionary<long, Piece>();
+            this.MoveSquares = new Dictionary<long, Piece[]>();
         }
 
         internal int WhiteKingPosition
@@ -68,12 +71,21 @@
             }
         }
 
-
         internal void MakeMove(Move move)
         {
+            if (this.MakeCastle(move))
+            {
+                return;
+            }
+
             Piece movingPiece = Utils.MakeDeepCopy(this.Board[move.FromSquare].OccupiedBy);
 
-            this.DestinationSquares.Add(move.Id, Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy));
+            Piece[] fromToPieces = new Piece[]
+            {
+                Utils.MakeDeepCopy(this.Board[move.FromSquare].OccupiedBy),
+                Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy)
+            };
+            this.MoveSquares.Add(move.Id, fromToPieces);
 
             bool isPawn = (movingPiece.Type == PieceType.Pawn);
             bool isCapture = (this.Board[move.ToSquare].OccupiedBy.Type != PieceType.None);
@@ -81,50 +93,47 @@
                 (this.FiftyMoveCounter + 1) : this.FiftyMoveCounter;
             movingPiece.Position = move.ToSquare;
 
-            this.UpdateGameStateInfo(move, movingPiece, "make");
-
             this.ResetSquare(move.FromSquare);
-            this.Board[move.ToSquare].OccupiedBy = movingPiece;
+            this.Board[move.ToSquare].OccupiedBy = (move.PromotionPiece.Position == -1) ? movingPiece : move.PromotionPiece;
+
+            if (move.Direction == Direction.EnPassant)
+            {
+                int squareAboveEnPassantSquare = (this.SideToMove == Color.White) ? move.ToSquare - 8 : move.ToSquare + 8;
+
+                this.ResetSquare(squareAboveEnPassantSquare);
+            }
 
             this.SwapSides();
+            this.UpdateGameStateInfo(move, "make");
         }
 
         internal void UndoMove(Move move)
         {
-            Piece movingPiece = Utils.MakeDeepCopy(this.Board[move.ToSquare].OccupiedBy);
-
-            movingPiece.Position = move.FromSquare;
-
-            this.UpdateGameStateInfo(move, movingPiece, "undo");
-
-            this.Board[move.ToSquare].OccupiedBy = this.DestinationSquares[move.Id];
-            this.Board[move.FromSquare].OccupiedBy = movingPiece;
-
-            this.DestinationSquares.Remove(move.Id);
+            if (this.UndoCastle(move))
+            {
+                return;
+            }
 
             this.SwapSides();
-        }
 
-        private void UpdateGameStateInfo(Move move, Piece movingPiece, string moveType)
-        {
-            int increment = (moveType == "make") ? 1 : -1;   
-            this.LastMove = move;
+            Piece movingPiece = (move.PromotionPiece.Position == -1) ?
+                this.Board[move.ToSquare].OccupiedBy :
+                new Piece(this.SideToMove, PieceType.Pawn, move.FromSquare);
+            movingPiece.Position = move.FromSquare;
 
-            if (this.SideToMove == Color.Black)
+            this.Board[move.ToSquare].OccupiedBy = this.MoveSquares[move.Id][1];
+            this.Board[move.FromSquare].OccupiedBy = movingPiece;
+
+            if (move.Direction == Direction.EnPassant)
             {
-                this.MoveCounter = this.MoveCounter + increment;
-            }
-            
-            if (this.WhiteInCheck)
-            {
-                this.WhiteInCheck = false;
-            }
-            else if (this.BlackInCheck)
-            {
-                this.BlackInCheck = false;
+                int squareAboveEnPassantSquare = (this.SideToMove == Color.White) ? move.ToSquare - 8 : move.ToSquare + 8;
+
+                this.Board[squareAboveEnPassantSquare].OccupiedBy = new Piece(this.SideToMove, PieceType.Pawn, squareAboveEnPassantSquare);
             }
 
-            this.KingInCheck = (this.WhiteInCheck ^ this.BlackInCheck);
+            this.MoveSquares.Remove(move.Id);
+
+            this.UpdateGameStateInfo(move, "undo");
         }
 
         #region Board Initialization
@@ -172,7 +181,104 @@
             }
         }
 
-        
+        private bool MakeCastle(Move move)
+        {
+            if (move.Direction != Direction.Castle)
+            {
+                return false;
+            }
+
+            Piece king = Utils.MakeDeepCopy(this.Board[move.KingFromSquare].OccupiedBy);
+            Piece rook = Utils.MakeDeepCopy(this.Board[move.RookFromSquare].OccupiedBy);
+
+            this.ResetSquare(move.KingFromSquare);
+            this.Board[move.KingToSquare].OccupiedBy = king;
+            this.ResetSquare(move.RookFromSquare);
+            this.Board[move.RookToSquare].OccupiedBy = rook;
+
+            king.Position = move.KingToSquare;
+            rook.Position = move.RookToSquare;
+
+            this.UpdateGameStateInfo(move, "make");
+            this.SwapSides();
+
+            return true;
+        }
+
+        private bool UndoCastle(Move move)
+        {
+            if (move.Direction != Direction.Castle)
+            {
+                return false;
+            }
+
+            this.SwapSides();
+
+            Piece king = Utils.MakeDeepCopy(this.Board[move.KingToSquare].OccupiedBy);
+            Piece rook = Utils.MakeDeepCopy(this.Board[move.RookToSquare].OccupiedBy);
+
+            this.ResetSquare(move.KingToSquare);
+            this.Board[move.KingFromSquare].OccupiedBy = king;
+            this.ResetSquare(move.RookToSquare);
+            this.Board[move.RookFromSquare].OccupiedBy = rook;
+
+            king.Position = move.KingFromSquare;
+            rook.Position = move.RookFromSquare;
+
+            this.UpdateGameStateInfo(move, "undo");
+
+            return true;
+        }
+
+        private void UpdateGameStateInfo(Move move, string moveType)
+        {
+            this.LastMove = move;
+
+            this.SetEnPassantSquare(moveType);
+
+            if (this.SideToMove == Color.Black)
+            {
+                int increment = (moveType == "make") ? 1 : -1;
+                this.MoveCounter = this.MoveCounter + increment;
+            }
+
+            if (this.WhiteInCheck)
+            {
+                this.WhiteInCheck = false;
+            }
+            else if (this.BlackInCheck)
+            {
+                this.BlackInCheck = false;
+            }
+
+            this.KingInCheck = (this.WhiteInCheck ^ this.BlackInCheck);
+        }
+
+        private void SetEnPassantSquare(string moveType)
+        {
+            Move move = this.LastMove;
+
+            if (moveType == "make" && move.Direction == Direction.Vertical)
+            {
+                if (this.Board[move.ToSquare].OccupiedBy.Type == PieceType.Pawn)
+                {
+                    int moveDifference = Math.Abs(move.FromSquare - move.ToSquare);
+
+                    if (moveDifference == 16)
+                    {
+                        this.EnPassantSquare = (this.SideToMove == Color.White) ? move.FromSquare + 8 : move.FromSquare - 8;
+                    }
+                }
+            }
+            else if (moveType == "unmake" && move.Direction == Direction.EnPassant)
+            {
+                this.EnPassantSquare = move.ToSquare;
+            }
+            else
+            {
+                this.EnPassantSquare = -1;
+            }
+        }
 
         private char GetLetterFromPiece(Piece piece)
         {

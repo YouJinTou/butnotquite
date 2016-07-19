@@ -60,6 +60,7 @@
 
             return
                 this.Position == other.Position &&
+                this.Color == other.Color &&
                 this.Type == other.Type;
         }
     }

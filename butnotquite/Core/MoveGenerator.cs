@@ -134,8 +134,8 @@
                 {
                     if (gettingOpponentActivity)
                     {
-                        movesUp.Add(new Move(fromSquare, location, Direction.Vertical));                       
-                    }                   
+                        movesUp.Add(new Move(fromSquare, location, Direction.Vertical));
+                    }
 
                     break;
                 }
@@ -192,8 +192,8 @@
                 {
                     if (gettingOpponentActivity)
                     {
-                        movesDown.Add(new Move(fromSquare, location, Direction.Vertical));                        
-                    }                   
+                        movesDown.Add(new Move(fromSquare, location, Direction.Vertical));
+                    }
 
                     break;
                 }
@@ -251,7 +251,7 @@
                     if (gettingOpponentActivity)
                     {
                         movesLeft.Add(new Move(fromSquare, location, Direction.Horizontal));
-                    }                    
+                    }
 
                     break;
                 }
@@ -308,8 +308,8 @@
                 {
                     if (gettingOpponentActivity)
                     {
-                        movesRight.Add(new Move(fromSquare, location, Direction.Horizontal));                       
-                    }                    
+                        movesRight.Add(new Move(fromSquare, location, Direction.Horizontal));
+                    }
 
                     break;
                 }
@@ -370,8 +370,8 @@
                 {
                     if (gettingOpponentActivity)
                     {
-                        movesUpRight.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));                        
-                    }                   
+                        movesUpRight.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));
+                    }
 
                     break;
                 }
@@ -433,7 +433,7 @@
                 {
                     if (gettingOpponentActivity)
                     {
-                        movesDownLeft.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));                                                
+                        movesDownLeft.Add(new Move(fromSquare, location, Direction.DownLeftUpRight));
                     }
 
                     break;
@@ -496,7 +496,7 @@
                 {
                     if (gettingOpponentActivity)
                     {
-                        movesUpLeft.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));                                                
+                        movesUpLeft.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));
                     }
 
                     break;
@@ -559,7 +559,7 @@
                 {
                     if (gettingOpponentActivity)
                     {
-                        movesDownRight.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));                        
+                        movesDownRight.Add(new Move(fromSquare, location, Direction.DownRightUpLeft));
                     }
 
                     break;
@@ -622,7 +622,6 @@
                 if (CanCastleLong())
                 {
                     int kingFromSquare = fromSquare;
-                    position.PrintBoard();
                     int kingDestination = (position.SideToMove == Color.White) ? 58 : 2;
                     int rookFromSquare = (position.SideToMove == Color.White) ? 56 : 0;
                     int rookDestination = (position.SideToMove == Color.White) ? 59 : 3;
@@ -838,7 +837,7 @@
             pawnMoves.AddRange(GenerateDiagonalPawnCaptures(fromSquare, captureLeft, Direction.DownRightUpLeft));
             pawnMoves.AddRange(GenerateDiagonalPawnCaptures(fromSquare, captureRight, Direction.DownLeftUpRight));
 
-            int enPassantSquare = GetEnPassantSquare();
+            int enPassantSquare = position.EnPassantSquare;
 
             if (enPassantSquare > -1)
             {
@@ -856,7 +855,12 @@
         {
             if (position.SideToMove == Color.White)
             {
-                if (!position.WhiteCanCastle || KingInCheck() || position.WhiteKingPosition != 60)
+                Piece whiteShortRook = new Piece(Color.White, PieceType.Rook, 63);
+
+                if (!position.WhiteCanCastle 
+                    || position.KingInCheck
+                    || position.WhiteKingPosition != 60 
+                    || !position.Board[63].OccupiedBy.Equals(whiteShortRook))
                 {
                     return false;
                 }
@@ -875,7 +879,12 @@
                 return true;
             }
 
-            if (!position.BlackCanCastle || KingInCheck() || position.BlackKingPosition != 4)
+            Piece blackShortRook = new Piece(Color.Black, PieceType.Rook, 7);
+
+            if (!position.BlackCanCastle 
+                || position.KingInCheck 
+                || position.BlackKingPosition != 4 
+                || !position.Board[7].OccupiedBy.Equals(blackShortRook))
             {
                 return false;
             }
@@ -898,7 +907,12 @@
         {
             if (position.SideToMove == Color.White)
             {
-                if (!position.WhiteCanCastle || KingInCheck() || position.WhiteKingPosition != 60)
+                Piece whiteLongRook = new Piece(Color.White, PieceType.Rook, 56);
+
+                if (!position.WhiteCanCastle 
+                    || position.KingInCheck
+                    || position.WhiteKingPosition != 60
+                    || !position.Board[56].OccupiedBy.Equals(whiteLongRook))
                 {
                     return false;
                 }
@@ -922,7 +936,12 @@
                 return true;
             }
 
-            if (!position.BlackCanCastle || KingInCheck() || position.BlackKingPosition != 4)
+            Piece blackLongRook = new Piece(Color.Black, PieceType.Rook, 0);
+
+            if (!position.BlackCanCastle 
+                || position.KingInCheck
+                || position.BlackKingPosition != 4
+                || !position.Board[0].OccupiedBy.Equals(blackLongRook))
             {
                 return false;
             }
@@ -944,60 +963,6 @@
             }
 
             return true;
-        }
-
-        private static int GetEnPassantSquare()
-        {
-            int fromSquare = position.LastMove.FromSquare;
-            int toSquare = position.LastMove.ToSquare;
-            Piece lastMovedPiece = position.Board[toSquare].OccupiedBy;
-            HashSet<int> initialPawnSquares = (position.SideToMove == Color.White) ? InitialBlackPawnSquares : InitialWhitePawnSquares;
-
-            if (lastMovedPiece.Type == PieceType.Pawn)
-            {
-                if (initialPawnSquares.Contains(fromSquare))
-                {
-                    int moveDirection = (lastMovedPiece.Color == Color.White) ? -1 : 1;
-                    int twoForward = fromSquare + (16 * moveDirection);
-
-                    if (position.LastMove.ToSquare == twoForward)
-                    {
-                        int currentCol = toSquare % 8;
-                        int twoForwardOneLeft = twoForward - 1;
-                        int twoForwardOneRight = twoForward + 1;
-                        int twoForwardOneLeftCol = twoForwardOneLeft % 8;
-                        int twoForwardOneRightCol = twoForwardOneRight % 8;
-                        int leftDif = Math.Abs(twoForwardOneLeftCol - currentCol);
-                        int rightDif = Math.Abs(twoForwardOneRightCol - currentCol);
-                        bool enPassantPossible = false;
-
-                        if (leftDif == 1) // A flank pawn hasn't been pushed
-                        {
-                            if (IsWithinBounds(twoForwardOneLeft) && position.Board[twoForwardOneLeft].OccupiedBy.Type == PieceType.Pawn)
-                            {
-                                enPassantPossible = true;
-                            }
-                        }
-
-                        if (rightDif == 1)
-                        {
-                            if (IsWithinBounds(twoForwardOneRight) && position.Board[twoForwardOneRight].OccupiedBy.Type == PieceType.Pawn)
-                            {
-                                enPassantPossible = true;
-                            }
-                        }
-
-                        if (enPassantPossible)
-                        {
-                            int enPassantSquare = fromSquare + (8 * moveDirection);
-
-                            return enPassantSquare;
-                        }
-                    }
-                }
-            }
-
-            return -1;
         }
 
         private static bool IsPawnPromotion(int toSquare)
