@@ -837,11 +837,11 @@
             pawnMoves.AddRange(GenerateDiagonalPawnCaptures(fromSquare, captureLeft, Direction.DownRightUpLeft));
             pawnMoves.AddRange(GenerateDiagonalPawnCaptures(fromSquare, captureRight, Direction.DownLeftUpRight));
 
-            int enPassantSquare = position.EnPassantSquare;
+            Move enPassant = GetEnPassantMove(fromSquare, captureLeft, captureRight);
 
-            if (enPassantSquare > -1)
+            if (enPassant.Direction == Direction.EnPassant)
             {
-                pawnMoves.Add(new Move(fromSquare, enPassantSquare, Direction.EnPassant));
+                pawnMoves.Add(enPassant);
             }
 
             return pawnMoves;
@@ -857,9 +857,11 @@
             {
                 Piece whiteShortRook = new Piece(Color.White, PieceType.Rook, 63);
 
-                if (!position.WhiteCanCastle 
+                if (!position.WhiteCanCastle
                     || position.KingInCheck
-                    || position.WhiteKingPosition != 60 
+                    || position.WhiteKingPosition != 60
+                    || position.Board[60].InitialPieceLeft
+                    || position.Board[63].InitialPieceLeft
                     || !position.Board[63].OccupiedBy.Equals(whiteShortRook))
                 {
                     return false;
@@ -881,9 +883,11 @@
 
             Piece blackShortRook = new Piece(Color.Black, PieceType.Rook, 7);
 
-            if (!position.BlackCanCastle 
-                || position.KingInCheck 
-                || position.BlackKingPosition != 4 
+            if (!position.BlackCanCastle
+                || position.KingInCheck
+                || position.BlackKingPosition != 4
+                || position.Board[4].InitialPieceLeft
+                || position.Board[7].InitialPieceLeft
                 || !position.Board[7].OccupiedBy.Equals(blackShortRook))
             {
                 return false;
@@ -909,9 +913,11 @@
             {
                 Piece whiteLongRook = new Piece(Color.White, PieceType.Rook, 56);
 
-                if (!position.WhiteCanCastle 
+                if (!position.WhiteCanCastle
                     || position.KingInCheck
                     || position.WhiteKingPosition != 60
+                    || position.Board[60].InitialPieceLeft
+                    || position.Board[56].InitialPieceLeft
                     || !position.Board[56].OccupiedBy.Equals(whiteLongRook))
                 {
                     return false;
@@ -938,9 +944,11 @@
 
             Piece blackLongRook = new Piece(Color.Black, PieceType.Rook, 0);
 
-            if (!position.BlackCanCastle 
+            if (!position.BlackCanCastle
                 || position.KingInCheck
                 || position.BlackKingPosition != 4
+                || position.Board[4].InitialPieceLeft
+                || position.Board[0].InitialPieceLeft
                 || !position.Board[0].OccupiedBy.Equals(blackLongRook))
             {
                 return false;
@@ -1043,6 +1051,34 @@
             }
 
             return pawnMoves;
+        }
+
+        private static Move GetEnPassantMove(int fromSquare, int captureLeft, int captureRight)
+        {
+            int enPassantSquare = position.EnPassantSquare;
+
+            if (enPassantSquare > -1)
+            {
+                if (captureLeft == enPassantSquare || captureRight == enPassantSquare)
+                {
+                    int[] neighborSquares = new int[] { fromSquare + 1, fromSquare - 1 };
+                    bool lastMovePawnMove = (position.Board[position.LastMove.ToSquare].OccupiedBy.Type == PieceType.Pawn);
+
+                    if (lastMovePawnMove && neighborSquares.Contains(position.LastMove.ToSquare))
+                    {
+                        int fromSquareCol = fromSquare % 8;
+                        int captureCol = enPassantSquare % 8;
+                        int captureColDif = Math.Abs(fromSquareCol - captureCol);
+
+                        if (captureColDif == 1)
+                        {
+                            return new Move(fromSquare, enPassantSquare, Direction.EnPassant);
+                        }
+                    }
+                }
+            }
+
+            return new Move();
         }
 
         #endregion

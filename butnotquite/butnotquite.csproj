@@ -54,6 +54,7 @@
     <Compile Include="Models\Chessboard.cs" />
     <Compile Include="Defaults\InitialPieceValue.cs" />
     <Compile Include="Defaults\PieceType.cs" />
+    <Compile Include="Models\GameHistoryEntry.cs" />
     <Compile Include="Models\Move.cs" />
     <Compile Include="Models\Piece.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

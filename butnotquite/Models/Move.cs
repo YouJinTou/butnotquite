@@ -5,6 +5,7 @@
     using System;
     using System.Threading;
 
+    [Serializable]
     internal struct Move : IEquatable<Move>
     {
         internal long Id;

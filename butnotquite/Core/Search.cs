@@ -2,12 +2,14 @@
 {
     using Defaults;
     using Models;
+    using Utils;
 
     using System.Collections.Generic;
-
+    using System;
     internal static class Search
     {
-        internal const int MaxDepth = 4;
+        private const int MaxDepth = 3;
+
         private static Color maximizingSide;
 
         internal static void Initialize(Chessboard position)
@@ -15,10 +17,10 @@
             maximizingSide = position.SideToMove;
             position.MaximizingSideBestMove = new Move();
 
-            GetAlphaBetaScore(0, int.MinValue, int.MaxValue, position);
+            DoAlphaBetaPruning(0, int.MinValue, int.MaxValue, position);
         }
 
-        private static int GetAlphaBetaScore(int depth, int alpha, int beta, Chessboard position)
+        private static int DoAlphaBetaPruning(int depth, int alpha, int beta, Chessboard position)
         {
             if (depth == MaxDepth)
             {
@@ -27,7 +29,7 @@
 
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
 
-            int gameStateScore = GetGameStateScore(position, availableMoves);
+            int gameStateScore = GetGameStateScore(position, availableMoves.Count);
 
             if (gameStateScore != -1)
             {
@@ -40,7 +42,7 @@
 
                 position.MakeMove(currentMove);
 
-                int score = GetAlphaBetaScore(depth + 1, alpha, beta, position);
+                int score = DoAlphaBetaPruning(depth + 1, alpha, beta, position);
 
                 position.UndoMove(currentMove);
 
@@ -73,14 +75,16 @@
             return (position.SideToMove == maximizingSide) ? alpha : beta;
         }
 
-        private static int GetGameStateScore(Chessboard position, List<Move> availableMoves)
+        #region Helpers
+
+        private static int GetGameStateScore(Chessboard position, int availalbeMovesCount)
         {
-            if (position.RepetitionEnforcable || position.FiftyMoveEnforcable)
+            if (ThreefoldRepetitionEnforcable(position) || position.FiftyMoveCounter >= 100)
             {
                 return 0;
             }
 
-            if (availableMoves.Count != 0)
+            if (availalbeMovesCount != 0)
             {
                 return -1;
             }
@@ -102,5 +106,53 @@
 
             return 0; // Stalemate
         }
+
+        private static bool ThreefoldRepetitionEnforcable(Chessboard position)
+        {
+            // Will be rewritten
+            Stack<GameHistoryEntry> gameHistoryEntries = Utils.MakeDeepCopy(position.GameHistory);
+            
+            if (gameHistoryEntries.Count < 8)
+            {
+                return false;
+            }
+
+            GameHistoryEntry lastEntry = gameHistoryEntries.Pop();
+            GameHistoryEntry nextToLastEntry = gameHistoryEntries.Pop();
+            bool drawEnforcable = true;
+
+            for (int i = 1; i <= 4; i++)
+            {
+                GameHistoryEntry lastEntryPreviousTurn = gameHistoryEntries.Pop();
+                GameHistoryEntry nextToLastEntryPreviousTurn = gameHistoryEntries.Pop();
+
+                if (!
+                    (
+                        (lastEntry.Move.FromSquare == lastEntryPreviousTurn.Move.ToSquare &&
+                        lastEntry.Move.ToSquare == lastEntryPreviousTurn.Move.FromSquare &&
+                        lastEntry.MovingPiece.Type == lastEntryPreviousTurn.MovingPiece.Type &&
+                        lastEntry.MovingPiece.Color == lastEntryPreviousTurn.MovingPiece.Color)
+
+                        &&
+
+                        (nextToLastEntry.Move.FromSquare == nextToLastEntryPreviousTurn.Move.ToSquare &&
+                        nextToLastEntry.Move.ToSquare == nextToLastEntryPreviousTurn.Move.FromSquare &&
+                        nextToLastEntry.MovingPiece.Type == nextToLastEntryPreviousTurn.MovingPiece.Type &&
+                        nextToLastEntry.MovingPiece.Color == nextToLastEntryPreviousTurn.MovingPiece.Color))
+                    )
+                {
+                    drawEnforcable = false;
+
+                    break;
+                }
+
+                lastEntry = lastEntryPreviousTurn;
+                nextToLastEntry = nextToLastEntryPreviousTurn;
+            }
+
+            return drawEnforcable;
+        }
+
+        #endregion
     }
 }
