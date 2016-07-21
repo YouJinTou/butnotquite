@@ -2,20 +2,19 @@
 {
     using Defaults;
     using Models;
-    using Utils;
 
     using System.Collections.Generic;
-    using System;
+    using System.Linq;
+
     internal static class Search
     {
-        private const int MaxDepth = 3;
+        private const int MaxDepth = 4;
 
         private static Color maximizingSide;
 
         internal static void Initialize(Chessboard position)
         {
             maximizingSide = position.SideToMove;
-            position.MaximizingSideBestMove = new Move();
 
             DoAlphaBetaPruning(0, int.MinValue, int.MaxValue, position);
         }
@@ -24,23 +23,23 @@
         {
             if (depth == MaxDepth)
             {
-                return Evaluator.EvaluatePosition(position);
+                return InvertScore(Evaluator.EvaluatePosition(position));
             }
 
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
-
-            int gameStateScore = GetGameStateScore(position, availableMoves.Count);
-
-            if (gameStateScore != -1)
-            {
-                return gameStateScore;
-            }
 
             for (int i = 0; i < availableMoves.Count; i++)
             {
                 Move currentMove = availableMoves[i];
 
                 position.MakeMove(currentMove);
+
+                int gameStateScore = GetGameStateScore(position, availableMoves.Count);
+
+                if (gameStateScore != -1)
+                {
+                    return gameStateScore;
+                }
 
                 int score = DoAlphaBetaPruning(depth + 1, alpha, beta, position);
 
@@ -77,6 +76,16 @@
 
         #region Helpers
 
+        private static int InvertScore(int score)
+        {
+            if (maximizingSide == Color.Black)
+            {
+                return -score;
+            }
+
+            return score;
+        }
+
         private static int GetGameStateScore(Chessboard position, int availalbeMovesCount)
         {
             if (ThreefoldRepetitionEnforcable(position) || position.FiftyMoveCounter >= 100)
@@ -109,46 +118,9 @@
 
         private static bool ThreefoldRepetitionEnforcable(Chessboard position)
         {
-            // Will be rewritten
-            Stack<GameHistoryEntry> gameHistoryEntries = Utils.MakeDeepCopy(position.GameHistory);
-            
-            if (gameHistoryEntries.Count < 8)
-            {
-                return false;
-            }
-
-            GameHistoryEntry lastEntry = gameHistoryEntries.Pop();
-            GameHistoryEntry nextToLastEntry = gameHistoryEntries.Pop();
-            bool drawEnforcable = true;
-
-            for (int i = 1; i <= 4; i++)
-            {
-                GameHistoryEntry lastEntryPreviousTurn = gameHistoryEntries.Pop();
-                GameHistoryEntry nextToLastEntryPreviousTurn = gameHistoryEntries.Pop();
-
-                if (!
-                    (
-                        (lastEntry.Move.FromSquare == lastEntryPreviousTurn.Move.ToSquare &&
-                        lastEntry.Move.ToSquare == lastEntryPreviousTurn.Move.FromSquare &&
-                        lastEntry.MovingPiece.Type == lastEntryPreviousTurn.MovingPiece.Type &&
-                        lastEntry.MovingPiece.Color == lastEntryPreviousTurn.MovingPiece.Color)
-
-                        &&
-
-                        (nextToLastEntry.Move.FromSquare == nextToLastEntryPreviousTurn.Move.ToSquare &&
-                        nextToLastEntry.Move.ToSquare == nextToLastEntryPreviousTurn.Move.FromSquare &&
-                        nextToLastEntry.MovingPiece.Type == nextToLastEntryPreviousTurn.MovingPiece.Type &&
-                        nextToLastEntry.MovingPiece.Color == nextToLastEntryPreviousTurn.MovingPiece.Color))
-                    )
-                {
-                    drawEnforcable = false;
-
-                    break;
-                }
-
-                lastEntry = lastEntryPreviousTurn;
-                nextToLastEntry = nextToLastEntryPreviousTurn;
-            }
+            bool drawEnforcable = (position.GameHistory
+                .GroupBy(pos => pos)
+                .Any(group => group.Count() >= 3));
 
             return drawEnforcable;
         }

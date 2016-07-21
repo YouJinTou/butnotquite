@@ -1,5 +1,6 @@
 ﻿namespace butnotquite.Models
 {
+    using Core.Zobrist;
     using Defaults;
     using Utils;
 
@@ -20,7 +21,7 @@
         internal IDictionary<long, Piece[]> MoveSquares;
         internal IDictionary<long, int> FiftyMoveMarkers;
 
-        internal Stack<GameHistoryEntry> GameHistory;
+        internal Stack<long> GameHistory;
 
         internal bool WhiteInCheck;
         internal bool BlackInCheck;
@@ -46,7 +47,7 @@
             this.WhiteCanCastle = true;
             this.BlackCanCastle = true;
             this.EnPassantSquare = -1;
-            this.GameHistory = new Stack<GameHistoryEntry>(300);
+            this.GameHistory = new Stack<long>(20);
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
             this.MoveSquares = new Dictionary<long, Piece[]>();
             this.FiftyMoveMarkers = new Dictionary<long, int>();
@@ -94,6 +95,8 @@
         {
             if (this.MakeCastle(move))
             {
+                this.GameHistory.Push(ZobristHasher.GetZobristHash(this));
+
                 return;
             }
 
@@ -119,6 +122,8 @@
 
             this.UpdateGameStateInfo(move, "make", movingPiece);
             this.SwapSides();
+
+            this.GameHistory.Push(ZobristHasher.GetZobristHash(this));
         }
 
         private bool MakeCastle(Move move)
@@ -142,6 +147,15 @@
             king.Position = move.KingToSquare;
             rook.Position = move.RookToSquare;
 
+            if (this.SideToMove == Color.White)
+            {
+                this.WhiteCanCastle = false;
+            }
+            else
+            {
+                this.BlackCanCastle = false;
+            }
+
             this.UpdateGameStateInfo(move, "make");
             this.SwapSides();
 
@@ -152,6 +166,8 @@
         {
             if (this.UndoCastle(move))
             {
+                this.GameHistory.Pop();
+
                 return;
             }
 
@@ -176,6 +192,8 @@
             this.MoveSquares.Remove(move.Id);
 
             this.UpdateGameStateInfo(move, "undo", movingPiece);
+
+            this.GameHistory.Pop();
         }
 
         private bool UndoCastle(Move move)
@@ -201,6 +219,15 @@
             king.Position = move.KingFromSquare;
             rook.Position = move.RookFromSquare;
 
+            if (this.SideToMove == Color.White)
+            {
+                this.WhiteCanCastle = true;
+            }
+            else
+            {
+                this.BlackCanCastle = true;
+            }
+
             this.UpdateGameStateInfo(move, "undo");
 
             return true;
@@ -212,17 +239,38 @@
 
         private void UpdateGameStateInfo(Move move, string moveType, Piece movingPiece = null)
         {
+            bool makeMove = (moveType == "make");
             this.LastMove = move;
 
             this.SetEnPassantSquare(moveType);
 
-            if (moveType == "make")
+            if (makeMove)
             {
                 this.UpdateGameStateInfoOnMakeMove(move, movingPiece);
             }
             else
             {
                 this.UpdateGameStateInfoOnUndoMove(move, movingPiece);
+            }
+
+            if (movingPiece != null && move.Direction != Direction.Castle)
+            {
+                if (movingPiece.Type == PieceType.Rook &&
+                    (move.FromSquare == 0 || move.FromSquare == 7 || move.FromSquare == 56 || move.FromSquare == 63))
+                {
+                    if (movingPiece.Color == this.SideToMove)
+                    {
+                        this.Board[move.FromSquare].InitialPieceLeft = makeMove;
+                    }
+                }
+                else if (movingPiece.Type == PieceType.King &&
+                    (move.FromSquare == 4 || move.FromSquare == 60))
+                {
+                    if (movingPiece.Color == this.SideToMove)
+                    {
+                        this.Board[move.FromSquare].InitialPieceLeft = makeMove;
+                    }
+                }
             }
         }
 
@@ -254,8 +302,6 @@
 
         private void UpdateGameStateInfoOnMakeMove(Move move, Piece movingPiece)
         {
-            this.GameHistory.Push(new GameHistoryEntry(move, movingPiece));
-
             if (this.SideToMove == Color.Black)
             {
                 this.MoveCounter++;
@@ -268,26 +314,6 @@
                 bool isPawn = (movingPiece.Type == PieceType.Pawn);
                 bool isCapture = (this.MoveSquares[move.Id][1].Type != PieceType.None);
                 this.FiftyMoveCounter = (isPawn || isCapture) ? 0 : (this.FiftyMoveCounter + 1);
-            }
-
-            if (movingPiece != null)
-            {
-                if (movingPiece.Type == PieceType.Rook &&
-                    (move.FromSquare == 0 || move.FromSquare == 7 || move.FromSquare == 56 || move.FromSquare == 63))
-                {
-                    if (movingPiece.Color == this.SideToMove)
-                    {
-                        this.Board[move.FromSquare].InitialPieceLeft = true;
-                    }
-                }
-                else if (movingPiece.Type == PieceType.King &&
-                    (move.FromSquare == 4 || move.FromSquare == 60))
-                {
-                    if (movingPiece.Color == this.SideToMove)
-                    {
-                        this.Board[move.FromSquare].InitialPieceLeft = true;
-                    }
-                }
             }
 
             if (this.WhiteInCheck)
@@ -304,8 +330,6 @@
 
         private void UpdateGameStateInfoOnUndoMove(Move move, Piece movingPiece)
         {
-            this.GameHistory.Pop();
-
             if (this.SideToMove == Color.Black)
             {
                 this.MoveCounter--;
@@ -327,7 +351,6 @@
             square.OccupiedBy.Color = Color.None;
             square.OccupiedBy.Value = 0;
             square.OccupiedBy.Position = -1;
-            square.OccupiedBy.Moves = null;
         }
 
         internal void SwapSides()

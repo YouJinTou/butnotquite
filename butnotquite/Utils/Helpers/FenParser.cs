@@ -59,7 +59,11 @@
             chessPosition.SideToMove = (gameState[1] == "w") ? Color.White : Color.Black;
             chessPosition.OppositeColor = (chessPosition.SideToMove == Color.White) ? Color.Black : Color.White;
             chessPosition.WhiteCanCastle = (gameState[2].IndexOfAny(new char[] { 'K', 'Q' }) > -1) ? true : false;
+            chessPosition.Board[63].InitialPieceLeft = !gameState[2].Contains("K");
+            chessPosition.Board[56].InitialPieceLeft = !gameState[2].Contains("Q");
             chessPosition.BlackCanCastle = (gameState[2].IndexOfAny(new char[] { 'k', 'q' }) > -1) ? true : false;
+            chessPosition.Board[7].InitialPieceLeft = !gameState[2].Contains("k");
+            chessPosition.Board[0].InitialPieceLeft = !gameState[2].Contains("q");
             chessPosition.FiftyMoveCounter = int.Parse(gameState[4]);
             chessPosition.MoveCounter = int.Parse(gameState[5]);
             chessPosition.EnPassantSquare = GetEnPassantSquare(gameState[3]);

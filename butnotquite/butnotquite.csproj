@@ -50,6 +50,8 @@
     <Compile Include="Core\Helpers\IllegalMovesFilter.cs" />
     <Compile Include="Core\MoveGenerator.cs" />
     <Compile Include="Core\Search.cs" />
+    <Compile Include="Core\Zobrist\ZobristHasher.cs" />
+    <Compile Include="Core\Zobrist\ZobristRandomizer.cs" />
     <Compile Include="Defaults\Direction.cs" />
     <Compile Include="Models\Chessboard.cs" />
     <Compile Include="Defaults\InitialPieceValue.cs" />

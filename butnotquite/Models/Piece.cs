@@ -3,7 +3,6 @@
     using Defaults;
 
     using System;
-    using System.Collections.Generic;
 
     [Serializable]
     internal sealed class Piece : IEquatable<Piece>
@@ -12,8 +11,6 @@
         internal PieceType Type;
         internal int Value;
         internal int Position;
-        internal HashSet<int> Moves;
-        internal bool Pinned;
 
         internal Piece()
         {

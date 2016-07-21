@@ -1008,7 +1008,6 @@
             square.OccupiedBy.Color = Color.None;
             square.OccupiedBy.Value = 0;
             square.OccupiedBy.Position = -1;
-            square.OccupiedBy.Moves = null;
         }
 
         #endregion

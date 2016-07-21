@@ -31,7 +31,7 @@
                     continue;
                 }
 
-                if (currentPiece.Color == position.SideToMove)
+                if (currentPiece.Color == Color.White)
                 {
                     sideToMoveScore += currentPiece.Value;
                 }
