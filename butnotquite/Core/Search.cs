@@ -3,6 +3,7 @@
     using Defaults;
     using Models;
 
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -27,21 +28,21 @@
             }
 
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
-
-            for (int i = 0; i < availableMoves.Count; i++)
+            int gameStateScoreBeforeMoving = GetGameStateScore(position, availableMoves.Count, true);
+            
+            if (gameStateScoreBeforeMoving != -1)
             {
-                Move currentMove = availableMoves[i];
+                return gameStateScoreBeforeMoving;
+            }
+
+            for (int moveIndex = 0; moveIndex < availableMoves.Count; moveIndex++)
+            {
+                Move currentMove = availableMoves[moveIndex];
 
                 position.MakeMove(currentMove);
 
-                int gameStateScore = GetGameStateScore(position, availableMoves.Count);
-
-                if (gameStateScore != -1)
-                {
-                    return gameStateScore;
-                }
-
-                int score = DoAlphaBetaPruning(depth + 1, alpha, beta, position);
+                int gameStateScore = GetGameStateScore(position, availableMoves.Count, false);
+                int score = (gameStateScore == -1) ? DoAlphaBetaPruning(depth + 1, alpha, beta, position) : gameStateScore;
 
                 position.UndoMove(currentMove);
 
@@ -78,20 +79,18 @@
 
         private static int InvertScore(int score)
         {
-            if (maximizingSide == Color.Black)
-            {
-                return -score;
-            }
-
-            return score;
+            return (maximizingSide == Color.White) ? score : -score;
         }
 
-        private static int GetGameStateScore(Chessboard position, int availalbeMovesCount)
+        private static int GetGameStateScore(Chessboard position, int availalbeMovesCount, bool beforeMoving)
         {
-            if (ThreefoldRepetitionEnforcable(position) || position.FiftyMoveCounter >= 100)
+            if (!beforeMoving)
             {
-                return 0;
-            }
+                if (ThreefoldRepetitionEnforcable(position) || position.FiftyMoveCounter >= 100)
+                {
+                    return 0;
+                }
+            }            
 
             if (availalbeMovesCount != 0)
             {

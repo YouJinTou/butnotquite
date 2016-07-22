@@ -11,7 +11,6 @@
         {
             int evaluation = 0;
             position = currentPosition;
-
             evaluation += EvaluateMaterial();
 
             return evaluation;

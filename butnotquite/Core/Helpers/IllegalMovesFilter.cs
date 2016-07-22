@@ -170,7 +170,7 @@
                                 pinDirections.Add(Direction.L);
                                 pinDirections.Add(Direction.EnPassant);
 
-                                if (position.Board[fromSquare].OccupiedBy.Type == PieceType.Pawn && kingCol != pieceCol)
+                                if (kingCol != pieceCol)
                                 {
                                     pinDirections.Add(Direction.Vertical);
                                 }
@@ -184,7 +184,7 @@
                                 pinDirections.Add(Direction.L);
                                 pinDirections.Add(Direction.EnPassant);
 
-                                if (position.Board[fromSquare].OccupiedBy.Type == PieceType.Pawn && kingCol != pieceCol)
+                                if (kingCol != pieceCol)
                                 {
                                     pinDirections.Add(Direction.Vertical);
                                 }
@@ -318,7 +318,7 @@
                     increment = (squareDifference % 7 == 0) ? 7 : 9;
                     break;
                 default:
-                    return true; // Something went wrong, returns that a pin exists
+                    return true; // Something went wrong; returns that a pin exists
             }
 
             minSquare += increment; // Otherwise we start at the piece
