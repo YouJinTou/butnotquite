@@ -1,6 +1,6 @@
 ﻿namespace butnotquite.Models
 {
-    using Core.Zobrist;
+    using Core.Search.Zobrist;
     using Defaults;
     using Utils;
 
@@ -22,6 +22,7 @@
         internal IDictionary<long, int> FiftyMoveMarkers;
 
         internal Stack<long> GameHistory;
+        internal IDictionary<long, int> TranspositionTable;
 
         internal bool WhiteInCheck;
         internal bool BlackInCheck;
@@ -48,6 +49,7 @@
             this.BlackCanCastle = true;
             this.EnPassantSquare = -1;
             this.GameHistory = new Stack<long>(200);
+            this.TranspositionTable = new Dictionary<long, int>();
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
             this.MoveSquares = new Dictionary<long, Piece[]>();
             this.FiftyMoveMarkers = new Dictionary<long, int>();
@@ -122,8 +124,6 @@
 
             this.UpdateGameStateInfo(move, "make", movingPiece);
             this.SwapSides();
-
-            this.GameHistory.Push(ZobristHasher.GetZobristHash(this));
         }
 
         private bool MakeCastle(Move move)

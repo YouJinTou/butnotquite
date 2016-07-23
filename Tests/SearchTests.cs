@@ -1,6 +1,6 @@
 ﻿namespace butnotquite.Tests
 {
-    using Core;
+    using Core.Search;
     using Defaults;
     using Models;
     using Utils;

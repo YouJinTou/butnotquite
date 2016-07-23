@@ -1,4 +1,4 @@
-﻿namespace butnotquite.Core.Zobrist
+﻿namespace butnotquite.Core.Search.Zobrist
 {
     using System;
     using System.Security.Cryptography;

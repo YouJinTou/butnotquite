@@ -1,17 +1,18 @@
-﻿namespace butnotquite.Core
+﻿namespace butnotquite.Core.Search
 {
+    using butnotquite.Models;
     using Defaults;
-    using Models;
+    using Zobrist;
 
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
     internal static class Search
     {
-        private const int MaxDepth = 5;
+        private const int MaxDepth = 7;
 
         private static Color maximizingSide;
+        internal static int VisitedNodes;
 
         internal static void Initialize(Chessboard position)
         {
@@ -22,6 +23,8 @@
 
         private static int DoAlphaBetaPruning(int depth, int alpha, int beta, Chessboard position)
         {
+            VisitedNodes++;
+
             if (depth == MaxDepth)
             {
                 return InvertScore(Evaluator.EvaluatePosition(position));
@@ -29,7 +32,7 @@
 
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
             int gameStateScoreBeforeMoving = GetGameStateScore(position, availableMoves.Count, true);
-            
+
             if (gameStateScoreBeforeMoving != -1)
             {
                 return gameStateScoreBeforeMoving;
@@ -41,8 +44,25 @@
 
                 position.MakeMove(currentMove);
 
-                int gameStateScore = GetGameStateScore(position, availableMoves.Count, false);
-                int score = (gameStateScore == -1) ? DoAlphaBetaPruning(depth + 1, alpha, beta, position) : gameStateScore;
+                int score = 0;
+                long zobristKey = ZobristHasher.GetZobristHash(position);
+
+                position.GameHistory.Push(zobristKey);
+
+                if (!position.TranspositionTable.ContainsKey(zobristKey))
+                {
+                    int gameStateScore = GetGameStateScore(position, availableMoves.Count, false);
+                    score = (gameStateScore == -1) ? DoAlphaBetaPruning(depth + 1, alpha, beta, position) : gameStateScore;
+
+                    if (!position.TranspositionTable.ContainsKey(zobristKey))
+                    {
+                        position.TranspositionTable.Add(zobristKey, score);
+                    }
+                }
+                else
+                {
+                    score = position.TranspositionTable[zobristKey];
+                }
 
                 position.UndoMove(currentMove);
 
@@ -90,7 +110,7 @@
                 {
                     return 0;
                 }
-            }            
+            }
 
             if (availalbeMovesCount != 0)
             {

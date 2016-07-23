@@ -1,6 +1,6 @@
 ﻿namespace butnotquite.Engine
 {
-    using Core;
+    using Core.Search;
     using Models;
     using Utils;
 
@@ -66,6 +66,10 @@
                 Console.WriteLine("Fifty-move rule: " + position.FiftyMoveCounter);
                 Console.WriteLine("Hash: " + Core.Zobrist.ZobristHasher.GetZobristHash(position));
                 Console.WriteLine("Side to move: " + position.SideToMove);
+                Console.WriteLine("EnPassant square: " + position.EnPassantSquare);
+                Console.WriteLine("Visited nodes: " + Search.VisitedNodes);
+
+                Search.VisitedNodes = 0;
             }
         }
     }

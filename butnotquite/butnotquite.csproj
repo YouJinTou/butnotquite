@@ -49,9 +49,10 @@
     <Compile Include="Core\Evaluator.cs" />
     <Compile Include="Core\Helpers\IllegalMovesFilter.cs" />
     <Compile Include="Core\MoveGenerator.cs" />
-    <Compile Include="Core\Search.cs" />
-    <Compile Include="Core\Zobrist\ZobristHasher.cs" />
-    <Compile Include="Core\Zobrist\ZobristRandomizer.cs" />
+    <Compile Include="Core\Search\Models\TableEntry.cs" />
+    <Compile Include="Core\Search\Search.cs" />
+    <Compile Include="Core\Search\Zobrist\ZobristHasher.cs" />
+    <Compile Include="Core\Search\Zobrist\ZobristRandomizer.cs" />
     <Compile Include="Defaults\Direction.cs" />
     <Compile Include="Models\Chessboard.cs" />
     <Compile Include="Defaults\InitialPieceValue.cs" />
