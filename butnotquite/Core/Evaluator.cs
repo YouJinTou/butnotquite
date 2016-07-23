@@ -1,7 +1,7 @@
 ﻿namespace butnotquite.Core
 {
-    using Defaults;
-    using Models;
+    using butnotquite.Defaults;
+    using butnotquite.Models;
 
     internal static class Evaluator
     {

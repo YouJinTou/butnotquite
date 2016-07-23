@@ -233,61 +233,35 @@
             int kingCol = kingPosition % 8;
             int pieceRow = fromSquare / 8;
             int pieceCol = fromSquare % 8;
-            bool verticalPinPosible = (kingRow == pieceRow);
-            bool horizontalPinPossible = (kingCol == pieceCol);
-            bool downRightUpLeftPinPossible = (Math.Abs(fromSquare - kingPosition) % 7 == 0);
-            bool downLeftUpRightPinPossible = (Math.Abs(fromSquare - kingPosition) % 9 == 0);
-
-            bool[] tempPossiblePins = new bool[4]
-            {
-                downLeftUpRightPinPossible,
-                downRightUpLeftPinPossible,
-                verticalPinPosible,
-                horizontalPinPossible
-            };
-            bool[] actualPossiblePins = new bool[4];
-
-            if (tempPossiblePins.All(pin => !pin))
-            {
-                return actualPossiblePins;
-            }
+            int squareDifferenceKingPiece = Math.Abs(fromSquare - kingPosition);
+            bool[] possiblePins = new bool[4];
 
             for (int i = 0; i < attackersPositions.Count; i++)
             {
                 int attackerPosition = attackersPositions[i];
-                int squareDifference = Math.Abs(attackerPosition - kingPosition);
+                int squareDifferenceKingAttacker = Math.Abs(attackerPosition - kingPosition);
                 int attackerRow = attackerPosition / 8;
-                int attackerCol = attackerPosition % 8;
+                int attackerCol = attackerPosition % 8;               
 
-                for (int direction = 0; direction < tempPossiblePins.Length; direction++)
+                if (kingCol == pieceCol && pieceCol == attackerCol)
                 {
-                    switch (direction)
-                    {
-                        case 0: // Down-left-up-right
-                            tempPossiblePins[direction] = (kingRow == pieceRow) ? false : (squareDifference % 9 == 0) ? true : false;
-                            break;
-                        case 1: // Down-right-up-left
-                            tempPossiblePins[direction] = (kingRow == pieceRow) ? false : (squareDifference % 7 == 0) ? true : false;
-                            break;
-                        case 2: // Vertical
-                            tempPossiblePins[direction] = (pieceRow == attackerRow) ? true : false;
-                            break;
-                        case 3: // Horizontal
-                            tempPossiblePins[direction] = (pieceCol == attackerCol) ? true : false;
-                            break;
-                    }
+                    possiblePins[3] = true;
                 }
-
-                for (int j = 0; j < actualPossiblePins.Length; j++)
+                else if (kingRow == pieceRow && pieceRow == attackerRow)
                 {
-                    if (tempPossiblePins[j])
-                    {
-                        actualPossiblePins[j] = true;
-                    }
+                    possiblePins[2] = true;
+                }
+                else if ((squareDifferenceKingPiece % 7 == 0) && (squareDifferenceKingAttacker % 7 == 0))
+                {
+                    possiblePins[1] = true;
+                }
+                else if ((squareDifferenceKingPiece % 9 == 0) && (squareDifferenceKingAttacker % 9 == 0))
+                {
+                    possiblePins[0] = true;
                 }
             }
 
-            return actualPossiblePins;
+            return possiblePins;
         }
 
         private static bool PinExists(int fromSquare, Direction potentialIllegalDirection)

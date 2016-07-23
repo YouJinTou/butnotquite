@@ -23,7 +23,7 @@
                 new Move(1, 18, Direction.L) // Nc6
             };
 
-            Search.Initialize(position);
+            //Search.Initialize(position);
         }
     }
 }

@@ -932,6 +932,16 @@
                 m.FromSquare == 27 && m.Direction == Direction.DownRightUpLeft));
         }
 
+        [TestMethod]
+        public void Pins_ShouldCorrectlyIdentifyThatThereAreNoPins()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("8/4k3/5pp1/p1p2n2/1rb2PB1/B7/6PP/4K1NR b K - 8 81");
+
+            List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+            
+            Assert.IsTrue(availableMoves.Any(m => m.FromSquare == 33));
+        }
+
         #endregion
 
         #region In Check

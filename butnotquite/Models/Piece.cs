@@ -1,6 +1,6 @@
 ﻿namespace butnotquite.Models
 {
-    using Defaults;
+    using butnotquite.Defaults;
 
     using System;
 

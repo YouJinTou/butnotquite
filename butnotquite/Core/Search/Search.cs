@@ -1,8 +1,9 @@
 ﻿namespace butnotquite.Core.Search
 {
+    using butnotquite.Core.Search.Models;
     using butnotquite.Models;
-    using Defaults;
-    using Zobrist;
+    using butnotquite.Defaults;
+    using butnotquite.Core.Search.Zobrist;
 
     using System.Collections.Generic;
     using System.Linq;
@@ -17,6 +18,7 @@
         internal static void Initialize(Chessboard position)
         {
             maximizingSide = position.SideToMove;
+            VisitedNodes = 0;
 
             DoAlphaBetaPruning(0, int.MinValue, int.MaxValue, position);
         }
@@ -44,27 +46,59 @@
 
                 position.MakeMove(currentMove);
 
-                int score = 0;
+                int gameStateScore = GetGameStateScore(position, availableMoves.Count, false);
+                int score = (gameStateScore == -1) ? -1 : gameStateScore;
                 long zobristKey = ZobristHasher.GetZobristHash(position);
 
                 position.GameHistory.Push(zobristKey);
 
-                if (!position.TranspositionTable.ContainsKey(zobristKey))
+                if (score == -1)
                 {
-                    int gameStateScore = GetGameStateScore(position, availableMoves.Count, false);
-                    score = (gameStateScore == -1) ? DoAlphaBetaPruning(depth + 1, alpha, beta, position) : gameStateScore;
-
                     if (!position.TranspositionTable.ContainsKey(zobristKey))
                     {
-                        position.TranspositionTable.Add(zobristKey, score);
+                        score = DoAlphaBetaPruning(depth + 1, alpha, beta, position);
+
+                        if (!position.TranspositionTable.ContainsKey(zobristKey))
+                        {
+                            position.TranspositionTable.Add(zobristKey, new TableEntry(depth, score));
+                        }
+                        else
+                        {
+                            TableEntry entry = position.TranspositionTable[zobristKey];
+
+                            if (entry.Depth >= depth)
+                            {
+                                entry.Depth = depth;
+                                entry.Score = score;
+                                position.TranspositionTable[zobristKey] = entry;
+                            }
+                        }
                     }
-                }
-                else
-                {
-                    score = position.TranspositionTable[zobristKey];
-                }
+                    else
+                    {
+                        TableEntry entry = position.TranspositionTable[zobristKey];
+
+                        if (entry.Depth >= depth)
+                        {
+                            score = entry.Score;
+                        }
+                        else
+                        {
+                            score = DoAlphaBetaPruning(depth + 1, alpha, beta, position);
+
+                            if (entry.Depth >= depth)
+                            {
+                                entry.Depth = depth;
+                                entry.Score = score;
+                                position.TranspositionTable[zobristKey] = entry;
+                            }
+                        }
+                    }
+                }               
 
                 position.UndoMove(currentMove);
+
+                position.GameHistory.Pop();
 
                 if (position.SideToMove == maximizingSide)
                 {

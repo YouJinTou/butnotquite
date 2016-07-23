@@ -1,8 +1,8 @@
 ﻿namespace butnotquite.Models
 {
-    using Core.Search.Zobrist;
-    using Defaults;
-    using Utils;
+    using butnotquite.Core.Search.Models;
+    using butnotquite.Defaults;
+    using butnotquite.Utils;
 
     using System;
     using System.Collections.Generic;
@@ -22,7 +22,7 @@
         internal IDictionary<long, int> FiftyMoveMarkers;
 
         internal Stack<long> GameHistory;
-        internal IDictionary<long, int> TranspositionTable;
+        internal IDictionary<long, TableEntry> TranspositionTable;
 
         internal bool WhiteInCheck;
         internal bool BlackInCheck;
@@ -49,7 +49,7 @@
             this.BlackCanCastle = true;
             this.EnPassantSquare = -1;
             this.GameHistory = new Stack<long>(200);
-            this.TranspositionTable = new Dictionary<long, int>();
+            this.TranspositionTable = new Dictionary<long, TableEntry>();
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
             this.MoveSquares = new Dictionary<long, Piece[]>();
             this.FiftyMoveMarkers = new Dictionary<long, int>();
@@ -97,8 +97,6 @@
         {
             if (this.MakeCastle(move))
             {
-                this.GameHistory.Push(ZobristHasher.GetZobristHash(this));
-
                 return;
             }
 
@@ -166,8 +164,6 @@
         {
             if (this.UndoCastle(move))
             {
-                this.GameHistory.Pop();
-
                 return;
             }
 
@@ -192,8 +188,6 @@
             this.MoveSquares.Remove(move.Id);
 
             this.UpdateGameStateInfo(move, "undo", movingPiece);
-
-            this.GameHistory.Pop();
         }
 
         private bool UndoCastle(Move move)
