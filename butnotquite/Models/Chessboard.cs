@@ -47,7 +47,7 @@
             this.WhiteCanCastle = true;
             this.BlackCanCastle = true;
             this.EnPassantSquare = -1;
-            this.GameHistory = new Stack<long>(20);
+            this.GameHistory = new Stack<long>(200);
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
             this.MoveSquares = new Dictionary<long, Piece[]>();
             this.FiftyMoveMarkers = new Dictionary<long, int>();

@@ -9,7 +9,7 @@
 
     internal static class Search
     {
-        private const int MaxDepth = 4;
+        private const int MaxDepth = 5;
 
         private static Color maximizingSide;
 

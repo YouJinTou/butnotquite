@@ -26,13 +26,14 @@
             //Chessboard position = Utils.LoadPositionFromFenString("8/8/5k2/K3R1p1/6p1/2r5/7P/6N1 w - - 10 48");
             //Chessboard position = Utils.LoadPositionFromFenString("2k2bnr/pr2pppp/2P5/8/4b3/8/3N1PPP/R1B1KBNR w KQ - 5 21");
             //Chessboard position = Utils.LoadPositionFromFenString("6r1/pk1b1pp1/2p5/2P2n1p/8/8/5PPP/2B1KBNR w K - 3 54");
-            Chessboard position = Utils.LoadPositionFromFenString("4r3/pk1b1pp1/2p5/2P2n1B/8/8/5PPP/2B1K1NR w K - 0 56"); //Problematic
+            //Chessboard position = Utils.LoadPositionFromFenString("4r3/pk1b1pp1/2p5/2P2n1B/8/8/5PPP/2B1K1NR w K - 0 56"); //Problematic
             //Chessboard position = Utils.LoadPositionFromFenString("2k1b3/3r1pp1/2p4n/2P3K1/5P2/3B4/3B2PP/6NR w - - 7 70");
             //Chessboard position = Utils.LoadPositionFromFenString("4k3/7K/2p5/2P5/8/8/8/8 w - - 10 83");
             //Chessboard position = Utils.LoadPositionFromFenString("8/2kbrpp1/p1p5/2P2n2/5P2/6PB/4N2P/2B1K2R b K - 0 67");
             //Chessboard position = Utils.LoadPositionFromFenString("8/4k3/2p2pp1/p4n2/1rb2PB1/8/6PP/2B1K1NR w K - 8 81");
             //Chessboard position = Utils.LoadPositionFromFenString("4k3/1R2N1K1/8/8/8/8/8/8 b - - 4 151");
             //Chessboard position = Utils.LoadPositionFromFenString("3k4/R5K1/3N4/8/8/8/8/8 b - - 14 156");
+            Chessboard position = Utils.LoadPositionFromFenString("8/4k3/5pp1/p1p2n2/1rb2PB1/8/6PP/2B1K1NR w K - 8 81");
 
             position.PrintBoard();
 
@@ -61,10 +62,10 @@
                 }
 
                 position.PrintBoard();
-                Console.WriteLine("\nMove: " + position.MoveCounter);
+                Console.WriteLine("\n\nMove: " + position.MoveCounter);
                 Console.WriteLine("Fifty-move rule: " + position.FiftyMoveCounter);
                 Console.WriteLine("Hash: " + Core.Zobrist.ZobristHasher.GetZobristHash(position));
-                Console.WriteLine("Side to move after make move: " + position.SideToMove);
+                Console.WriteLine("Side to move: " + position.SideToMove);
             }
         }
     }

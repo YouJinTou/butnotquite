@@ -155,6 +155,7 @@
             int kingPosition = GetKingPosition();
             int kingCol = kingPosition % 8;
             int pieceCol = fromSquare % 8;
+            PieceType pieceType = position.Board[fromSquare].OccupiedBy.Type;
 
             for (int i = 0; i < possiblePins.Length; i++)
             {
@@ -175,6 +176,7 @@
                                     pinDirections.Add(Direction.Vertical);
                                 }
                             }
+
                             break;
                         case 1: // Second diagonal
                             if (PinExists(fromSquare, Direction.DownRightUpLeft))
@@ -187,20 +189,22 @@
                                 if (kingCol != pieceCol)
                                 {
                                     pinDirections.Add(Direction.Vertical);
-                                }
 
-                                return pinDirections;
+                                    return pinDirections;
+                                }
                             }
+
                             break;
                         case 2: // Vertical, same rank, so piece can't move up or down
                             if (PinExists(fromSquare, Direction.Vertical))
                             {
                                 pinDirections.Add(Direction.Vertical);
+                                pinDirections.Add(Direction.EnPassant);
+                                pinDirections.Add(Direction.L);
                                 pinDirections.Add(Direction.DownLeftUpRight);
                                 pinDirections.Add(Direction.DownRightUpLeft);
-                                pinDirections.Add(Direction.EnPassant);
-                                pinDirections.Add(Direction.L); // If the knight is pinned, it simply can't move
                             }
+
                             break;
                         case 3: // Horizontal, same file, so piece can't move left or right 
                             if (PinExists(fromSquare, Direction.Horizontal))
@@ -209,7 +213,9 @@
                                 pinDirections.Add(Direction.DownLeftUpRight);
                                 pinDirections.Add(Direction.DownRightUpLeft);
                                 pinDirections.Add(Direction.L);
+                                pinDirections.Add(Direction.EnPassant);
                             }
+
                             break;
                         default:
                             break;
@@ -279,19 +285,6 @@
                         actualPossiblePins[j] = true;
                     }
                 }
-            }
-
-            if (actualPossiblePins[0] || actualPossiblePins[1]) // The only direction you can go in when pinned diagonally is towards the pinning piece
-            {
-                actualPossiblePins[2] = true;
-                actualPossiblePins[3] = true;
-            }
-
-            if (position.Board[fromSquare].OccupiedBy.Type == PieceType.Pawn && // If pinned horizontally, pawns can't move diagonally
-                actualPossiblePins[3])
-            {
-                actualPossiblePins[0] = true;
-                actualPossiblePins[1] = true;
             }
 
             return actualPossiblePins;

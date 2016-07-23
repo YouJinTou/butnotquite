@@ -813,16 +813,16 @@
         #region Pins
 
         [TestMethod]
-        public void Pin_ShouldIncludeTheCorrectMovesOfPinnedPieces()
+        public void Pins_ShouldIncludeTheCorrectMovesOfPinnedPieces()
         {
-            Chessboard position = Utils.LoadPositionFromFenString("k7/1b2r3/b7/7p/6q1/2pPNBp1/r2QKP1r/3N3r w - - 3 41");
+            Chessboard position = Utils.LoadPositionFromFenString("k7/1b2r3/8/7p/2b3q1/2pPNBp1/r2QKP1r/3N3r w - - 3 41");
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
                         
             // Illegal moves
             Assert.IsTrue(!availableMoves.Any(m =>
                 m.FromSquare == 43
                 && m.ToSquare == 35));
-            Assert.IsTrue(!availableMoves.Any(m =>
+            Assert.IsTrue(availableMoves.Any(m =>
                 m.FromSquare == 43
                 && m.ToSquare == 34));
             Assert.IsTrue(!availableMoves.Any(m =>
@@ -906,6 +906,30 @@
                 m.FromSquare == 9 && 
                 m.ToSquare == 18 && 
                 m.Direction == Direction.DownRightUpLeft));
+        }
+
+        [TestMethod]
+        public void Pins_ShouldCorrectlyListAllAvailableMovesAndCaptures()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("q2k1r2/b7/6n1/3B4/4K3/r7/8/8 w - - 15 48");
+
+            List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+
+            Assert.IsTrue(availableMoves.Count == 3);
+            Assert.IsTrue(availableMoves.All(m =>
+                m.FromSquare == 27 && m.Direction == Direction.DownRightUpLeft));
+        }
+
+        [TestMethod]
+        public void Pins_ShouldCorrectlyListAllAvailableMovesWhilePinned()
+        {
+            Chessboard position = Utils.LoadPositionFromFenString("q2k1r2/b7/6n1/3B4/4K3/r7/8/8 w - - 15 48");
+
+            List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+
+            Assert.IsTrue(availableMoves.Count == 3);
+            Assert.IsTrue(availableMoves.All(m =>
+                m.FromSquare == 27 && m.Direction == Direction.DownRightUpLeft));
         }
 
         #endregion
