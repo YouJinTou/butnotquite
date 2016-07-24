@@ -38,14 +38,24 @@
             //Chessboard position = Utils.LoadPositionFromFenString("8/4k3/5pp1/p1p2B2/1rb2P2/8/6PP/2B1K1NR b K - 1 82");
             //Chessboard position = Utils.LoadPositionFromFenString("8/5k2/5pp1/p1p2n2/1rb2PB1/8/6PP/2B1K1NR w K - 8 81");
             //Chessboard position = Utils.LoadPositionFromFenString("8/1k6/5pp1/p1p5/1rb2P1P/3B4/3B2P1/4K1NR b K - 12 41");
-            Chessboard position = Utils.LoadPositionFromFenString("r4r1k/1bpq1p1n/p1np4/1p1Bb1BQ/P7/6R1/1P3PPP/1N2R1K1 w - - 4 28"); // Mate in 4
+            //Chessboard position = Utils.LoadPositionFromFenString("r4r1k/1bpq1p1n/p1np4/1p1Bb1BQ/P7/6R1/1P3PPP/1N2R1K1 w - - 4 28"); // Mate in 4
             //Chessboard position = Utils.LoadPositionFromFenString("4rr1k/1Ppq1p1n/2np4/3B2BQ/8/6b1/1P3PPP/1N2R1K1 b - - 8 32");
+            Chessboard position = Utils.LoadPositionFromFenString("5k2/2p4n/8/p3Q3/5r2/8/5q1P/7K b - - 17 59");
 
             position.PrintBoard();
 
             while (true)
             {
-                Search.Initialize(position);
+                try
+                {
+                    Search.Initialize(position);
+                }
+                catch
+                {
+                    position.PrintBoard();
+                    Console.WriteLine("\n\nERROR");
+                    Console.ReadLine();
+                }
 
                 if (position.MaximizingSideBestMove.Direction != Defaults.Direction.Castle)
                 {
@@ -68,6 +78,7 @@
                 }
 
                 position.PrintBoard();
+
                 Console.WriteLine("\n\nMove: " + position.MoveCounter);
                 Console.WriteLine("Fifty-move rule: " + position.FiftyMoveCounter);
                 Console.WriteLine("Hash: " + ZobristHasher.GetZobristHash(position));
