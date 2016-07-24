@@ -12,13 +12,18 @@
     {
         private const int MaxDepth = 7;
 
-        private static Color maximizingSide;
         internal static int VisitedNodes;
 
-        internal static void Initialize(Chessboard position)
+        private static Chessboard position;
+        private static Color maximizingSide;
+
+        internal static void Initialize(Chessboard currentPosition)
         {
+            position = currentPosition;
             maximizingSide = position.SideToMove;
             VisitedNodes = 0;
+
+            position.TranspositionTable.Clear();
 
             DoAlphaBetaPruning(0, int.MinValue, int.MaxValue, position);
         }
@@ -33,12 +38,15 @@
             }
 
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+
             int gameStateScoreBeforeMoving = GetGameStateScore(position, availableMoves.Count, true);
 
             if (gameStateScoreBeforeMoving != -1)
             {
                 return gameStateScoreBeforeMoving;
             }
+
+            availableMoves = SortMoves(availableMoves);
 
             for (int moveIndex = 0; moveIndex < availableMoves.Count; moveIndex++)
             {
@@ -47,32 +55,17 @@
                 position.MakeMove(currentMove);
 
                 int gameStateScore = GetGameStateScore(position, availableMoves.Count, false);
-                int score = (gameStateScore == -1) ? -1 : gameStateScore;
+                int uneventfulScore = -1;
+                int score = (gameStateScore == uneventfulScore) ? uneventfulScore : gameStateScore;
                 long zobristKey = ZobristHasher.GetZobristHash(position);
 
                 position.GameHistory.Push(zobristKey);
 
-                if (score == -1)
+                if (score == uneventfulScore)
                 {
                     if (!position.TranspositionTable.ContainsKey(zobristKey))
                     {
                         score = DoAlphaBetaPruning(depth + 1, alpha, beta, position);
-
-                        if (!position.TranspositionTable.ContainsKey(zobristKey))
-                        {
-                            position.TranspositionTable.Add(zobristKey, new TableEntry(depth, score));
-                        }
-                        else
-                        {
-                            TableEntry entry = position.TranspositionTable[zobristKey];
-
-                            if (entry.Depth >= depth)
-                            {
-                                entry.Depth = depth;
-                                entry.Score = score;
-                                position.TranspositionTable[zobristKey] = entry;
-                            }
-                        }
                     }
                     else
                     {
@@ -85,16 +78,9 @@
                         else
                         {
                             score = DoAlphaBetaPruning(depth + 1, alpha, beta, position);
-
-                            if (entry.Depth >= depth)
-                            {
-                                entry.Depth = depth;
-                                entry.Score = score;
-                                position.TranspositionTable[zobristKey] = entry;
-                            }
                         }
                     }
-                }               
+                }
 
                 position.UndoMove(currentMove);
 
@@ -102,6 +88,16 @@
 
                 if (position.SideToMove == maximizingSide)
                 {
+                    if (score >= beta)
+                    {
+                        if (!position.TranspositionTable.ContainsKey(zobristKey))
+                        {
+                            position.TranspositionTable.Add(zobristKey, new TableEntry(depth, score));
+                        }
+
+                        return beta;
+                    }
+
                     if (score > alpha)
                     {
                         alpha = score;
@@ -110,24 +106,77 @@
                         {
                             position.MaximizingSideBestMove = currentMove;
                         }
+
+                        if (!position.TranspositionTable.ContainsKey(zobristKey))
+                        {
+                            position.TranspositionTable.Add(zobristKey, new TableEntry(depth, score));
+                        }
                     }
                 }
                 else
                 {
+                    if (score <= alpha)
+                    {
+                        return alpha;
+                    }
+
                     if (score <= beta)
                     {
                         beta = score;
                     }
                 }
-
-                if (alpha >= beta)
-                {
-                    return (position.SideToMove == maximizingSide) ? alpha : beta;
-                }
             }
 
-            return (position.SideToMove == maximizingSide) ? alpha : beta;
+            return alpha;
         }
+
+        #region Move Ordering
+
+        private static List<Move> SortMoves(List<Move> availableMoves)
+        {
+            List<Move> sortedMoves = new List<Move>();
+            
+            sortedMoves.AddRange(SortByMvvLva(availableMoves));
+
+            for (int i = 0; i < sortedMoves.Count; i++)
+            {
+                availableMoves.Remove(sortedMoves[i]);
+            }
+
+            availableMoves.InsertRange(0, sortedMoves);
+
+            return availableMoves;
+        }
+
+        private static List<Move> SortByMvvLva(List<Move> availableMoves)
+        {
+            List<Move> captures = availableMoves.Where(
+                m => position.Board[m.ToSquare].OccupiedBy.Value != 0).ToList();
+            int[] captureScores = new int[captures.Count];
+            Move[] sortedCaptures = new Move[captures.Count];
+
+            for (int i = 0; i < captures.Count; i++)
+            {
+                int valueDifference = 
+                    position.Board[captures[i].FromSquare].OccupiedBy.Value - 
+                    position.Board[captures[i].ToSquare].OccupiedBy.Value;
+                captureScores[i] = valueDifference;
+            }
+
+            captureScores = captureScores.OrderBy(s => s).ToArray();
+
+            for (int i = 0; i < captures.Count; i++)
+            {
+                sortedCaptures[i] = captures.FirstOrDefault(c => 
+                    (position.Board[c.FromSquare].OccupiedBy.Value - 
+                    position.Board[c.ToSquare].OccupiedBy.Value)
+                    == captureScores[i]);
+            }            
+
+            return sortedCaptures.ToList();
+        }
+
+        #endregion
 
         #region Helpers
 
@@ -151,18 +200,18 @@
                 return -1;
             }
 
-            if (position.SideToMove == Color.White)
+            if (position.SideToMove == maximizingSide)
             {
-                if (position.WhiteInCheck)
+                if (position.KingInCheck)
                 {
-                    return int.MinValue;
+                    return int.MinValue + 1;
                 }
             }
             else
             {
-                if (position.BlackInCheck)
+                if (position.KingInCheck)
                 {
-                    return int.MaxValue;
+                    return int.MaxValue - 1;
                 }
             }
 

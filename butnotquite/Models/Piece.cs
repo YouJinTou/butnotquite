@@ -16,6 +16,7 @@
         {
             this.Type = PieceType.None;
             this.Color = Color.None;
+            this.Value = 0;
             this.Position = -1;
         }
 
@@ -23,7 +24,7 @@
         {
             this.Color = color;
             this.Type = type;
-            this.Value = AssignInitialValue(type);
+            this.Value = this.AssignInitialValue(type);
             this.Position = position;
         }
 

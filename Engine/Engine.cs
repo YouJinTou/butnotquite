@@ -34,10 +34,12 @@
             //Chessboard position = Utils.LoadPositionFromFenString("8/4k3/2p2pp1/p4n2/1rb2PB1/8/6PP/2B1K1NR w K - 8 81");
             //Chessboard position = Utils.LoadPositionFromFenString("4k3/1R2N1K1/8/8/8/8/8/8 b - - 4 151");
             //Chessboard position = Utils.LoadPositionFromFenString("3k4/R5K1/3N4/8/8/8/8/8 b - - 14 156");
-            Chessboard position = Utils.LoadPositionFromFenString("8/4k3/5pp1/p1p2n2/1rb2PB1/8/6PP/2B1K1NR w K - 8 81");
+            //Chessboard position = Utils.LoadPositionFromFenString("8/4k3/5pp1/p1p2n2/1rb2PB1/8/6PP/2B1K1NR w K - 8 81");
             //Chessboard position = Utils.LoadPositionFromFenString("8/4k3/5pp1/p1p2B2/1rb2P2/8/6PP/2B1K1NR b K - 1 82");
             //Chessboard position = Utils.LoadPositionFromFenString("8/5k2/5pp1/p1p2n2/1rb2PB1/8/6PP/2B1K1NR w K - 8 81");
             //Chessboard position = Utils.LoadPositionFromFenString("8/1k6/5pp1/p1p5/1rb2P1P/3B4/3B2P1/4K1NR b K - 12 41");
+            Chessboard position = Utils.LoadPositionFromFenString("r4r1k/1bpq1p1n/p1np4/1p1Bb1BQ/P7/6R1/1P3PPP/1N2R1K1 w - - 4 28"); // Mate in 4
+            //Chessboard position = Utils.LoadPositionFromFenString("4rr1k/1Ppq1p1n/2np4/3B2BQ/8/6b1/1P3PPP/1N2R1K1 b - - 8 32");
 
             position.PrintBoard();
 
