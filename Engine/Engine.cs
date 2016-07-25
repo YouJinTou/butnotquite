@@ -6,6 +6,7 @@
     using butnotquite.Utils;
 
     using System;
+    using System.Diagnostics;
 
     internal sealed class Engine
     {
@@ -16,6 +17,8 @@
 
         private static void PlayEngineGame()
         {
+            Stopwatch sw = new Stopwatch();
+
             //Chessboard position = new Chessboard(false);
             //Chessboard position = Utils.LoadPositionFromFenString("1rbq1bnr/pp1kpppp/2p5/P1PP4/Q7/4P3/5PPP/RNB1KBNR w KQ - 0 15");
             //Chessboard position = Utils.LoadPositionFromFenString("r1k2bnr/p3pppp/8/2P5/4b3/8/3N1PPP/R1B1KBNR b KQ - 1 20"); // Castling problems
@@ -40,22 +43,27 @@
             //Chessboard position = Utils.LoadPositionFromFenString("8/1k6/5pp1/p1p5/1rb2P1P/3B4/3B2P1/4K1NR b K - 12 41");
             //Chessboard position = Utils.LoadPositionFromFenString("r4r1k/1bpq1p1n/p1np4/1p1Bb1BQ/P7/6R1/1P3PPP/1N2R1K1 w - - 4 28"); // Mate in 4
             //Chessboard position = Utils.LoadPositionFromFenString("4rr1k/1Ppq1p1n/2np4/3B2BQ/8/6b1/1P3PPP/1N2R1K1 b - - 8 32");
-            Chessboard position = Utils.LoadPositionFromFenString("5k2/2p4n/8/p3Q3/5r2/8/5q1P/7K b - - 17 59");
+            //Chessboard position = Utils.LoadPositionFromFenString("5k2/2p4n/8/p3Q3/5r2/8/5q1P/7K b - - 17 59");
+            Chessboard position = Utils.LoadPositionFromFenString("r1b1k2r/ppppnppp/2n2q2/2b5/3NP3/2P1B3/PP3PPP/RN1QKB1R w KQkq - 5 13");
 
             position.PrintBoard();
 
             while (true)
             {
-                try
-                {
+                //try
+                //{
+                    sw.Start();
+
                     Search.Initialize(position);
-                }
-                catch
-                {
-                    position.PrintBoard();
-                    Console.WriteLine("\n\nERROR");
-                    Console.ReadLine();
-                }
+
+                    sw.Stop();
+                //}
+                //catch
+                //{
+                //    position.PrintBoard();
+                //    Console.WriteLine("\n\nERROR");
+                //    Console.ReadLine();
+                //}
 
                 if (position.MaximizingSideBestMove.Direction != Defaults.Direction.Castle)
                 {
@@ -85,6 +93,7 @@
                 Console.WriteLine("Side to move: " + position.SideToMove);
                 Console.WriteLine("EnPassant square: " + position.EnPassantSquare);
                 Console.WriteLine("Visited nodes: " + Search.VisitedNodes);
+                Console.WriteLine("Elapsed: " + sw.Elapsed);
                 Console.ReadLine();
             }
         }
