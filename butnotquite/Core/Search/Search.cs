@@ -1,6 +1,7 @@
 ﻿namespace butnotquite.Core.Search
 {
     using butnotquite.Core.Search.Models;
+    using butnotquite.Core.Search.Helpers;
     using butnotquite.Core.Search.Zobrist;
     using butnotquite.Defaults;
     using butnotquite.Models;
@@ -42,7 +43,7 @@
                 return gameStateScore;
             }
 
-            availableMoves = SortMoves(availableMoves, depth);
+            availableMoves = MoveSorter.SortMoves(position, availableMoves, killerMoves, depth);
 
             for (int moveIndex = 0; moveIndex < availableMoves.Count; moveIndex++)
             {
@@ -68,7 +69,7 @@
                     if (score >= beta)
                     {
                         TryAddKillerMove(currentMove, depth);
-                        TryAddTableEntry(zobristKey, score, depth);
+                        // TryAddTableEntry(zobristKey, score, depth, currentMove);
 
                         return beta;
                     }
@@ -82,7 +83,7 @@
                             position.MaximizingSideBestMove = currentMove;
                         }
 
-                        TryAddTableEntry(zobristKey, score, depth);
+                        TryAddTableEntry(zobristKey, score, depth, currentMove);
                     }
                 }
                 else
@@ -101,82 +102,6 @@
 
             return (position.SideToMove == maximizingSide) ? alpha : beta;
         }
-
-        #region Move Ordering
-
-        private static List<Move> SortMoves(List<Move> availableMoves, int depth)
-        {
-            List<Move> sortedMoves = new List<Move>();
-
-            sortedMoves.AddRange(SortByMvvLva(availableMoves));
-            sortedMoves.AddRange(SortByKillerMoves(availableMoves, depth));
-
-            for (int i = 0; i < sortedMoves.Count; i++)
-            {
-                availableMoves.Remove(sortedMoves[i]);
-            }
-
-            availableMoves.InsertRange(0, sortedMoves);
-
-            return availableMoves;
-        }
-
-        private static List<Move> SortByMvvLva(List<Move> availableMoves)
-        {
-            List<Move> captures = availableMoves.Where(
-                m => m.Direction != Direction.Castle && position.Board[m.ToSquare].OccupiedBy.Value != 0)
-                .ToList();
-            int[] captureScores = new int[captures.Count];
-            Move[] sortedCaptures = new Move[captures.Count];
-
-            for (int i = 0; i < captures.Count; i++)
-            {
-                int valueDifference =
-                    position.Board[captures[i].FromSquare].OccupiedBy.Value -
-                    position.Board[captures[i].ToSquare].OccupiedBy.Value;
-                captureScores[i] = valueDifference;
-            }
-
-            captureScores = captureScores.OrderBy(s => s).ToArray();
-
-            for (int i = 0; i < captures.Count; i++)
-            {
-                sortedCaptures[i] = captures.FirstOrDefault(c =>
-                    (position.Board[c.FromSquare].OccupiedBy.Value -
-                    position.Board[c.ToSquare].OccupiedBy.Value)
-                    == captureScores[i]);
-            }
-
-            return sortedCaptures.ToList();
-        }
-
-        private static List<Move> SortByKillerMoves(List<Move> availableMoves, int depth)
-        {
-            List<Move> castleKillers = availableMoves.Where(m => m.Direction == Direction.Castle).ToList();
-            List<Move> killers = availableMoves.Where(
-                m => m.Direction != Direction.Castle && position.Board[m.ToSquare].OccupiedBy.Value == 0)
-                .ToList();
-            List<Move> sortedKillers = new List<Move>();
-
-            killers.AddRange(castleKillers);
-
-            if (killerMoves.ContainsKey(depth))
-            {
-                Move[] killerMovesAtPly = killerMoves[depth];
-
-                for (int i = 0; i < killerMovesAtPly.Length; i++)
-                {
-                    if (killers.Any(k => k.Id == killerMovesAtPly[i].Id))
-                    {
-                        sortedKillers.Add(killerMovesAtPly[i]);
-                    }
-                }
-            }
-
-            return sortedKillers;
-        }
-
-        #endregion
 
         #region Helpers
 
@@ -229,11 +154,11 @@
             return (maximizingSide == Color.White) ? score : -score;
         }
 
-        private static void TryAddTableEntry(long zobristKey, int score, int depth)
+        private static void TryAddTableEntry(long zobristKey, int score, int depth, Move bestMove)
         {
             if (!position.TranspositionTable.ContainsKey(zobristKey))
             {
-                position.TranspositionTable.Add(zobristKey, new TableEntry(depth, score));
+                position.TranspositionTable.Add(zobristKey, new TableEntry(depth, score, bestMove));
             }
         }
 

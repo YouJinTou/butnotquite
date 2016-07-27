@@ -49,6 +49,7 @@
     <Compile Include="Core\Evaluator.cs" />
     <Compile Include="Core\Helpers\IllegalMovesFilter.cs" />
     <Compile Include="Core\MoveGenerator.cs" />
+    <Compile Include="Core\Search\Helpers\MoveSorter.cs" />
     <Compile Include="Core\Search\Models\TableEntry.cs" />
     <Compile Include="Core\Search\Search.cs" />
     <Compile Include="Core\Search\Zobrist\ZobristHasher.cs" />

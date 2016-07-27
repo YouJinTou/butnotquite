@@ -50,20 +50,20 @@
 
             while (true)
             {
-                //try
-                //{
+                try
+                {
                     sw.Start();
 
                     Search.Initialize(position);
 
                     sw.Stop();
-                //}
-                //catch
-                //{
-                //    position.PrintBoard();
-                //    Console.WriteLine("\n\nERROR");
-                //    Console.ReadLine();
-                //}
+                }
+                catch
+                {
+                    position.PrintBoard();
+                    Console.WriteLine("\n\nERROR");
+                    Console.ReadLine();
+                }
 
                 if (position.MaximizingSideBestMove.Direction != Defaults.Direction.Castle)
                 {
