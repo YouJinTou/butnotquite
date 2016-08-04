@@ -5,7 +5,7 @@
     using System;
 
     [Serializable]
-    internal sealed class Piece : IEquatable<Piece>
+    public sealed class Piece : IEquatable<Piece>
     {
         internal Color Color;
         internal PieceType Type;

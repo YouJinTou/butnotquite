@@ -1,6 +1,6 @@
 ﻿namespace butnotquite.Defaults
 {
-    internal enum Color
+    public enum Color
     {
         White,
         Black,

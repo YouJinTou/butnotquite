@@ -1,6 +1,6 @@
 ﻿namespace butnotquite.Defaults
 {
-    internal enum PieceType
+    public enum PieceType
     {
         King,
         Queen,
