@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Client"
         xmlns:defaults="clr-namespace:butnotquite.Defaults;assembly=butnotquite"
         mc:Ignorable="d"
-        Title="butnotquite Chess" Height="650" Width="650">
+        Title="butnotquite Chess" Height="600" Width="600">
 
     <Window.Resources>
         <DrawingBrush x:Key="Checkerboard" Stretch="None" TileMode="Tile" Viewport="0,0,2,2" ViewportUnits="Absolute">
@@ -31,6 +31,15 @@
 
         <Style x:Key="PieceStyle" TargetType="{x:Type Image}">
             <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding PieceType}" Value="{x:Static defaults:PieceType.None}"/>
+                        <Condition Binding="{Binding Color}" Value="{x:Static defaults:Color.None}"/>
+                    </MultiDataTrigger.Conditions>
+                    <MultiDataTrigger.Setters>
+                        <Setter Property="Image.Source" Value="/Images/empty_square.png" />
+                    </MultiDataTrigger.Setters>
+                </MultiDataTrigger>
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
                         <Condition Binding="{Binding PieceType}" Value="{x:Static defaults:PieceType.Pawn}"/>
@@ -152,8 +161,8 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid Width="1" Height="1">
-                        <Image Width="0.8" Height="0.8" Style="{StaticResource PieceStyle}" />
+                    <Grid Name="square" Width="1" Height="1" PreviewMouseDown="square_MouseLeftButtonDown">
+                        <Image Name="piece" Width="0.8" Height="0.8" Style="{StaticResource PieceStyle}"/>
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

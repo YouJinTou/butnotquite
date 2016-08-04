@@ -165,7 +165,9 @@
       <Name>butnotquite</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\empty_square.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\black_bishop.png" />
     <Resource Include="Images\black_king.png" />
