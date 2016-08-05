@@ -1,7 +1,6 @@
 ﻿namespace Client.ViewModel
 {
     using butnotquite.Defaults;
-    using butnotquite.Models;
 
     using GalaSoft.MvvmLight;
     using System.Windows;

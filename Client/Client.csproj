@@ -166,9 +166,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\empty_square.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\black_bishop.png" />
     <Resource Include="Images\black_king.png" />
     <Resource Include="Images\black_knight.png" />
@@ -181,6 +178,9 @@
     <Resource Include="Images\white_pawn.png" />
     <Resource Include="Images\white_queen.png" />
     <Resource Include="Images\white_rook.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\empty_square.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
         xmlns:defaults="clr-namespace:butnotquite.Defaults;assembly=butnotquite"
-        mc:Ignorable="d"
+        mc:Ignorable="d" 
         Title="butnotquite Chess" Height="600" Width="600">
 
     <Window.Resources>
@@ -161,9 +161,9 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid Name="square" Width="1" Height="1" PreviewMouseDown="square_MouseLeftButtonDown">
-                        <Image Name="piece" Width="0.8" Height="0.8" Style="{StaticResource PieceStyle}"/>
-                    </Grid>
+                    <Border Name="square"  PreviewMouseDown="square_MouseLeftButtonDown" Width="1" Height="1" >
+                        <Image Width="0.8" Height="0.8" Style="{StaticResource PieceStyle}"/>
+                    </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemContainerStyle>
