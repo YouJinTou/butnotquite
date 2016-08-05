@@ -11,7 +11,7 @@
 
     internal static class Search
     {
-        private const int MaxDepth = 6;
+        private const int MaxDepth = 5;
 
         internal static int VisitedNodes;
 
@@ -36,6 +36,7 @@
             VisitedNodes++;
 
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
+            position.PieceActivity = availableMoves.Count;
             int gameStateScore = GetGameStateScore(position, availableMoves.Count, depth);
 
             if (gameStateScore != -1)
@@ -69,7 +70,6 @@
                     if (score >= beta)
                     {
                         TryAddKillerMove(currentMove, depth);
-                        // TryAddTableEntry(zobristKey, score, depth, currentMove);
 
                         return beta;
                     }
@@ -83,6 +83,7 @@
                             position.MaximizingSideBestMove = currentMove;
                         }
 
+                        UpdatePrincipalVariation(depth, currentMove);
                         TryAddTableEntry(zobristKey, score, depth, currentMove);
                     }
                 }
@@ -96,6 +97,8 @@
                     if (score <= beta)
                     {
                         beta = score;
+
+                        UpdatePrincipalVariation(depth, currentMove);
                     }
                 }
             }
@@ -104,6 +107,18 @@
         }
 
         #region Helpers
+
+        private static void UpdatePrincipalVariation(int depth, Move bestMove)
+        {
+            if (!position.PrincipalVariation.ContainsKey(depth))
+            {
+                position.PrincipalVariation.Add(depth, bestMove);
+            }
+            else
+            {
+                position.PrincipalVariation[depth] = bestMove;
+            }
+        }
 
         private static int GetGameStateScore(Chessboard position, int availalbeMovesCount, int depth)
         {

@@ -33,19 +33,34 @@
             }
 
             HashSet<int> lineOfFire = GetLineOfFire();
-            List<Move> kingMoves = availableMoves.Where(m => m.Direction == Direction.SingleSquare).ToList();
 
-            availableMoves.RemoveAll(m => !lineOfFire.Contains(m.ToSquare));
-            availableMoves.AddRange(kingMoves);
+            if (lineOfFire != null)
+            {
+                List<Move> kingMoves = availableMoves.Where(m => m.Direction == Direction.SingleSquare).ToList();
+
+                availableMoves.RemoveAll(m => !lineOfFire.Contains(m.ToSquare));
+                availableMoves.AddRange(kingMoves);
+            }
+            else // Double check
+            {
+                availableMoves.RemoveAll(m => m.Direction != Direction.SingleSquare);
+            }
         }
 
         private static HashSet<int> GetLineOfFire()
         {
             int kingPosition = GetKingPosition();
-            int attackerPosition = position.OpponentActivity
-                .FirstOrDefault(kvp => kvp.Value.Contains(kingPosition))
-                .Key
-                .Position;
+            int[] attackerPositions = position.OpponentActivity
+                .Where(kvp => kvp.Value.Contains(kingPosition))
+                .Select(kvp => kvp.Key.Position)
+                .ToArray();
+
+            if (attackerPositions.Count() > 1) // Double check; king has to move
+            {
+                return null;
+            }
+
+            int attackerPosition = attackerPositions[0];
             HashSet<int> checkSquares = new HashSet<int>();
 
             if (position.Board[attackerPosition].OccupiedBy.Type == PieceType.Knight)

@@ -17,11 +17,13 @@
         internal int Evaluation;
         internal Move MaximizingSideBestMove;
 
+        internal int PieceActivity;
         internal IDictionary<Piece, HashSet<int>> OpponentActivity;
         internal IDictionary<long, Piece[]> MoveSquares;
         internal IDictionary<long, int> FiftyMoveMarkers;
 
         internal Stack<long> GameHistory;
+        internal IDictionary<int, Move> PrincipalVariation;
         internal IDictionary<long, TableEntry> TranspositionTable;
 
         internal bool WhiteInCheck;
@@ -49,6 +51,7 @@
             this.BlackCanCastle = true;
             this.EnPassantSquare = -1;
             this.GameHistory = new Stack<long>(200);
+            this.PrincipalVariation = new Dictionary<int, Move>();
             this.TranspositionTable = new Dictionary<long, TableEntry>();
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);
             this.MoveSquares = new Dictionary<long, Piece[]>();
@@ -170,9 +173,6 @@
             this.SwapSides();
 
             Piece movingPiece = Utils.MakeDeepCopy(this.MoveSquares[move.Id][0]);
-            //(move.PromotionPiece.Position == -1) ?
-            //this.Board[move.ToSquare].OccupiedBy :
-            //new Piece(this.SideToMove, PieceType.Pawn, move.FromSquare);
 
             this.Board[move.ToSquare].OccupiedBy = this.MoveSquares[move.Id][1];
             this.Board[move.FromSquare].OccupiedBy = movingPiece;
@@ -280,7 +280,7 @@
 
                     if (squareDifference == 16)
                     {
-                        this.EnPassantSquare = (this.SideToMove == Color.White) ? move.FromSquare + 8 : move.FromSquare - 8;
+                        this.EnPassantSquare = (this.SideToMove == Color.White) ? move.FromSquare - 8 : move.FromSquare + 8;
                     }
                 }
             }
@@ -355,7 +355,7 @@
 
         internal void PrintBoard()
         {
-            Console.Clear();
+            //Console.Clear();
 
             for (int square = 0; square < this.Board.Length; square++)
             {

@@ -2,7 +2,6 @@
 {
     using butnotquite.Models;
     using Defaults;   
-    using Zobrist;
 
     using System.Collections.Generic;
     using System.Linq;
@@ -17,15 +16,17 @@
             List<Move> sortedMoves = new List<Move>();
             position = currentPosition;
             killerMoves = currentKillerMoves;
+            Move pVMove = GetPrincipalVariationMove(depth);
 
             sortedMoves.AddRange(SortByMvvLva(availableMoves));
             sortedMoves.AddRange(SortByKillerMoves(availableMoves, depth));
 
-            Move pvMove = GetPrincipalVariationMove();
-
-            if (pvMove.Id != 0)
+            if (pVMove.Id != 0)
             {
-                sortedMoves.Add(pvMove);
+                if (availableMoves.Any(m => m.FromSquare == pVMove.FromSquare && m.ToSquare == pVMove.ToSquare))
+                {
+                    sortedMoves.Add(pVMove);
+                }
             }
 
             for (int i = 0; i < sortedMoves.Count; i++)
@@ -93,13 +94,11 @@
             return sortedKillers;
         }
 
-        private static Move GetPrincipalVariationMove()
+        private static Move GetPrincipalVariationMove(int depth)
         {
-            long zobristKey = ZobristHasher.GetZobristHash(position);
-
-            if (position.TranspositionTable.ContainsKey(zobristKey))
+            if (position.PrincipalVariation.ContainsKey(depth))
             {
-                return position.TranspositionTable[zobristKey].BestMove;
+                return position.PrincipalVariation[depth];
             }
 
             return new Move();

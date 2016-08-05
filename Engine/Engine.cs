@@ -19,7 +19,7 @@
         {
             Stopwatch sw = new Stopwatch();
 
-            //Chessboard position = new Chessboard(false);
+            Chessboard position = new Chessboard(false);
             //Chessboard position = Utils.LoadPositionFromFenString("1rbq1bnr/pp1kpppp/2p5/P1PP4/Q7/4P3/5PPP/RNB1KBNR w KQ - 0 15");
             //Chessboard position = Utils.LoadPositionFromFenString("r1k2bnr/p3pppp/8/2P5/4b3/8/3N1PPP/R1B1KBNR b KQ - 1 20"); // Castling problems
             //Chessboard position = Utils.LoadPositionFromFenString("R1rqkb1r/1Ppbpppp/7n/8/3P4/2P1P3/3N1PPP/2BQKBNR b KQkq - 2 25");
@@ -44,26 +44,29 @@
             //Chessboard position = Utils.LoadPositionFromFenString("r4r1k/1bpq1p1n/p1np4/1p1Bb1BQ/P7/6R1/1P3PPP/1N2R1K1 w - - 4 28"); // Mate in 4
             //Chessboard position = Utils.LoadPositionFromFenString("4rr1k/1Ppq1p1n/2np4/3B2BQ/8/6b1/1P3PPP/1N2R1K1 b - - 8 32");
             //Chessboard position = Utils.LoadPositionFromFenString("5k2/2p4n/8/p3Q3/5r2/8/5q1P/7K b - - 17 59");
-            Chessboard position = Utils.LoadPositionFromFenString("r1b1k2r/ppppnppp/2n2q2/2b5/3NP3/2P1B3/PP3PPP/RN1QKB1R w KQkq - 5 13");
-
+            //Chessboard position = Utils.LoadPositionFromFenString("r1b1k2r/ppppnppp/2n2q2/2b5/3NP3/2P1B3/PP3PPP/RN1QKB1R w KQkq - 5 13");
+            //Chessboard position = Utils.LoadPositionFromFenString("rnb1kb1r/ppppnppp/5q2/6B1/3pP3/2N2N2/PPP2PPP/R2QKB1R b KQkq - 4 1");
+            //Chessboard position = Utils.LoadPositionFromFenString("rnb1kb1r/ppppnppp/3q4/6B1/4P3/2p2N2/PPPK1PPP/R2Q1B1R w kq - 3 32");
+            //Chessboard position = Utils.LoadPositionFromFenString("rnb1kb1r/3p1ppp/p2q4/1ppNn1B1/B3P3/P7/R1PQ1PPP/4NRK1 w kq 17 0 16");
+            //Chessboard position = Utils.LoadPositionFromFenString("rnb1kb1r/3p1ppp/p2q4/QppNn1B1/B3P3/P7/R1P2PPP/4NRK1 b kq 17 0 16");
             position.PrintBoard();
 
             while (true)
             {
-                try
-                {
+                //try
+                //{
                     sw.Start();
 
                     Search.Initialize(position);
-
+                    
                     sw.Stop();
-                }
-                catch
-                {
-                    position.PrintBoard();
-                    Console.WriteLine("\n\nERROR");
-                    Console.ReadLine();
-                }
+                //}
+                //catch
+                //{
+                //    position.PrintBoard();
+                //    Console.WriteLine("\n\nERROR");
+                //    Console.ReadLine();
+                //}
 
                 if (position.MaximizingSideBestMove.Direction != Defaults.Direction.Castle)
                 {
@@ -95,6 +98,8 @@
                 Console.WriteLine("Visited nodes: " + Search.VisitedNodes);
                 Console.WriteLine("Elapsed: " + sw.Elapsed);
                 Console.ReadLine();
+
+                sw.Reset();
             }
         }
     }
