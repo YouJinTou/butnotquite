@@ -8,7 +8,7 @@
     using System;
     using System.Diagnostics;
 
-    internal sealed class Engine
+    internal sealed class Console
     {
         public static void Main()
         {
@@ -55,20 +55,20 @@
 
             while (true)
             {
-                //try
-                //{
+                try
+                {
                     sw.Start();
 
                     Search.Initialize(position, 5);
-                    
+
                     sw.Stop();
-                //}
-                //catch
-                //{
-                //    position.PrintBoard();
-                //    Console.WriteLine("\n\nERROR");
-                //    Console.ReadLine();
-                //}
+                }
+                catch
+                {
+                    position.PrintBoard();
+                    System.Console.WriteLine("\n\nERROR");
+                    System.Console.ReadLine();
+                }
 
                 if (position.MaximizingSideBestMove.Direction != Defaults.Direction.Castle)
                 {
@@ -92,14 +92,14 @@
 
                 position.PrintBoard();
 
-                Console.WriteLine("\n\nMove: " + position.MoveCounter);
-                Console.WriteLine("Fifty-move rule: " + position.FiftyMoveCounter);
-                Console.WriteLine("Hash: " + ZobristHasher.GetZobristHash(position));
-                Console.WriteLine("Side to move: " + position.SideToMove);
-                Console.WriteLine("EnPassant square: " + position.EnPassantSquare);
-                Console.WriteLine("Visited nodes: " + Search.VisitedNodes);
-                Console.WriteLine("Elapsed: " + sw.Elapsed);
-                Console.ReadLine();
+                System.Console.WriteLine("\n\nMove: " + position.MoveCounter);
+                System.Console.WriteLine("Fifty-move rule: " + position.FiftyMoveCounter);
+                System.Console.WriteLine("Hash: " + ZobristHasher.GetZobristHash(position));
+                System.Console.WriteLine("Side to move: " + position.SideToMove);
+                System.Console.WriteLine("EnPassant square: " + position.EnPassantSquare);
+                System.Console.WriteLine("Visited nodes: " + Search.VisitedNodes);
+                System.Console.WriteLine("Elapsed: " + sw.Elapsed);
+                System.Console.ReadLine();
 
                 sw.Reset();
             }

@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "butnotquite", "butnotquite\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{AA2B69CE-ABF5-4DD6-AA96-CA07D267F1EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{F50B0CF6-DAC4-4EAB-B3A4-EE67993D782E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Engine\Console.csproj", "{F50B0CF6-DAC4-4EAB-B3A4-EE67993D782E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{697DC095-FA55-49C2-9AF4-9B68D71744BA}"
 EndProject
