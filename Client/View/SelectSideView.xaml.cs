@@ -11,7 +11,7 @@
         {
             InitializeComponent();
         }
-
+        
         private void side_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;

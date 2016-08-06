@@ -4,7 +4,7 @@
 
     using GalaSoft.MvvmLight;
     using System.Windows;
-    
+
     public class PieceViewModel : ViewModelBase
     {
         private PieceType pieceType;

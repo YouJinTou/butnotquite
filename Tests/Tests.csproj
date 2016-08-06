@@ -56,12 +56,6 @@
     <Compile Include="SearchTests.cs" />
     <Compile Include="UtilsTests.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\butnotquite\butnotquite.csproj">
-      <Project>{a59c6010-8642-4a19-876b-75d223e8f06c}</Project>
-      <Name>butnotquite</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
