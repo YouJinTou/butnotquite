@@ -18,8 +18,6 @@
 
     public partial class GameView : Window
     {
-        private event EventHandler OnMakeMove;
-
         private Chessboard chessboard;
         private ObservableCollection<PieceViewModel> pieces;
         private Engine.Defaults.Color playerColor;

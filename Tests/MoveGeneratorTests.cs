@@ -746,7 +746,7 @@
         }
 
         [TestMethod]
-        public void PawnMovement_ShouldContain16PawnMovesIncludingPromotions()
+        public void PawnMovement_ShouldContain11PawnMovesIncludingPromotions()
         {
             Chessboard position = Utils.LoadPositionFromFenString("1q3n1r/P5P1/3k4/8/8/NnP1p1p1/PP3P11/5K2 w - - 0 50");
             List<Move> availableMoves = MoveGenerator.GetAvailableMoves(position);
@@ -759,15 +759,10 @@
                 new Move(53, 44, Direction.DownRightUpLeft),
                 new Move(53, 46, Direction.DownLeftUpRight),
                 new Move(8, 0, Direction.Vertical, new Piece(Color.White, PieceType.Queen, 0)),
-                new Move(8, 0, Direction.Vertical, new Piece(Color.White, PieceType.Knight, 0)),
                 new Move(8, 1, Direction.DownLeftUpRight, new Piece(Color.White, PieceType.Queen, 1)),
-                new Move(8, 1, Direction.DownLeftUpRight, new Piece(Color.White, PieceType.Knight, 1)),
                 new Move(14, 5, Direction.DownRightUpLeft, new Piece(Color.White, PieceType.Queen, 5)),
-                new Move(14, 5, Direction.DownRightUpLeft, new Piece(Color.White, PieceType.Knight, 5)),
                 new Move(14, 6, Direction.Vertical, new Piece(Color.White, PieceType.Queen, 6)),
-                new Move(14, 6, Direction.Vertical, new Piece(Color.White, PieceType.Knight, 6)),
-                new Move(14, 7, Direction.DownLeftUpRight, new Piece(Color.White, PieceType.Queen, 7)),
-                new Move(14, 7, Direction.DownLeftUpRight, new Piece(Color.White, PieceType.Knight, 7))
+                new Move(14, 7, Direction.DownLeftUpRight, new Piece(Color.White, PieceType.Queen, 7))
             };
 
             foreach (Move testMove in pawnTestMoves)

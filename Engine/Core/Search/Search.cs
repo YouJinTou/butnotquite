@@ -39,7 +39,7 @@
             position.PieceActivity = availableMoves.Count;
             int gameStateScore = GetGameStateScore(position, availableMoves.Count, depth);
 
-            if (gameStateScore != -1)
+            if (gameStateScore != 9999)
             {
                 return gameStateScore;
             }
@@ -122,7 +122,7 @@
                     return InvertScore(Evaluator.EvaluatePosition(position));
                 }
 
-                return -1;
+                return 9999;
             }
 
             if (position.SideToMove == maximizingSide)
