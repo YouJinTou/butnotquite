@@ -19,7 +19,7 @@
         {
             Stopwatch sw = new Stopwatch();
 
-            Chessboard position = new Chessboard(false);
+            //Chessboard position = new Chessboard(false);
             //Chessboard position = Utils.LoadPositionFromFenString("1rbq1bnr/pp1kpppp/2p5/P1PP4/Q7/4P3/5PPP/RNB1KBNR w KQ - 0 15");
             //Chessboard position = Utils.LoadPositionFromFenString("r1k2bnr/p3pppp/8/2P5/4b3/8/3N1PPP/R1B1KBNR b KQ - 1 20"); // Castling problems
             //Chessboard position = Utils.LoadPositionFromFenString("R1rqkb1r/1Ppbpppp/7n/8/3P4/2P1P3/3N1PPP/2BQKBNR b KQkq - 2 25");
@@ -49,6 +49,8 @@
             //Chessboard position = Utils.LoadPositionFromFenString("rnb1kb1r/ppppnppp/3q4/6B1/4P3/2p2N2/PPPK1PPP/R2Q1B1R w kq - 3 32");
             //Chessboard position = Utils.LoadPositionFromFenString("rnb1kb1r/3p1ppp/p2q4/1ppNn1B1/B3P3/P7/R1PQ1PPP/4NRK1 w kq 17 0 16");
             //Chessboard position = Utils.LoadPositionFromFenString("rnb1kb1r/3p1ppp/p2q4/QppNn1B1/B3P3/P7/R1P2PPP/4NRK1 b kq 17 0 16");
+            Chessboard position = Utils.LoadPositionFromFenString("r1b1k1nr/pppp1ppp/8/4P3/1P6/6P1/PP2Q2P/RNB1KBNq b KQkq - 0 6");
+
             position.PrintBoard();
 
             while (true)
@@ -57,7 +59,7 @@
                 //{
                     sw.Start();
 
-                    Search.Initialize(position);
+                    Search.Initialize(position, 5);
                     
                     sw.Stop();
                 //}

@@ -11,18 +11,18 @@
 
     internal static class Search
     {
-        private const int MaxDepth = 5;
-
         internal static int VisitedNodes;
 
         private static Chessboard position;
+        private static int maxDepth;
         private static Color maximizingSide;
         private static IDictionary<int, Move[]> killerMoves;
 
-        internal static void Initialize(Chessboard currentPosition)
+        internal static void Initialize(Chessboard currentPosition, int depth)
         {
             VisitedNodes = 0;
             position = currentPosition;
+            maxDepth = depth;
             maximizingSide = position.SideToMove;
             killerMoves = new Dictionary<int, Move[]>();
 
@@ -129,7 +129,7 @@
 
             if (availalbeMovesCount != 0)
             {
-                if (depth == MaxDepth)
+                if (depth == maxDepth)
                 {
                     return InvertScore(Evaluator.EvaluatePosition(position));
                 }

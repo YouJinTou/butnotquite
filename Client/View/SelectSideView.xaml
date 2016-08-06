@@ -1,0 +1,17 @@
+﻿<Window x:Class="Client.View.SelectSideView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Client.View"
+        mc:Ignorable="d"
+        Title="butnotquite Chess" Height="209.542" Width="433.969">
+    <Grid Name="mainContainer" Background="BurlyWood">
+        <Label FontSize="15" FontFamily="Verdana" Margin="169,10,180,124" RenderTransformOrigin="0.582,0.632">Play as:</Label>
+        <Button Background="White" Click="side_Click" Margin="116,61,221,84">White</Button>
+        <Button Background="Black" Click="side_Click" Foreground="White" Margin="221,61,116,84">Black</Button>
+        <Label FontSize="15" FontFamily="Verdana" Margin="169,111,159,23">Difficulty:</Label>
+        <RadioButton IsChecked="True" Margin="187,144,-187,-144">1</RadioButton>
+        <RadioButton Margin="221,144,-221,-144">2</RadioButton>
+    </Grid>
+</Window>

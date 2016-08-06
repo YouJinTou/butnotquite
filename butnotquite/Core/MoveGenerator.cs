@@ -348,7 +348,7 @@
 
         private static List<Move> GetMovesUpRightDiagonal(int fromSquare)
         {
-            HashSet<int> northEastBordersAdjusted = new HashSet<int>() { -7, -6, -5, -4, -3, -2, -1, 0, 8, 16, 24, 32, 40, 48, 57 };
+            HashSet<int> northEastBordersAdjusted = new HashSet<int>() { -7, -6, -5, -4, -3, -2, -1, 0, 8, 16, 24, 32, 40, 48, 56 };
             List<Move> movesUpRight = new List<Move>(11);
 
             int location = fromSquare - 7;
@@ -819,7 +819,6 @@
                     if (IsPawnPromotion(oneForward))
                     {
                         pawnMoves.Add(new Move(fromSquare, oneForward, Direction.Vertical, new Piece(position.SideToMove, PieceType.Queen, oneForward)));
-                        pawnMoves.Add(new Move(fromSquare, oneForward, Direction.Vertical, new Piece(position.SideToMove, PieceType.Knight, oneForward)));
                     }
                     else
                     {
@@ -1035,7 +1034,6 @@
                         if (IsPawnPromotion(diagonalCaptureIndex))
                         {
                             pawnMoves.Add(new Move(fromSquare, diagonalCaptureIndex, direction, new Piece(position.SideToMove, PieceType.Queen, diagonalCaptureIndex)));
-                            pawnMoves.Add(new Move(fromSquare, diagonalCaptureIndex, direction, new Piece(position.SideToMove, PieceType.Knight, diagonalCaptureIndex)));
                         }
                         else
                         {
