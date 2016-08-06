@@ -1,9 +1,9 @@
 ﻿namespace Client
 {
-    using butnotquite.Core;
-    using butnotquite.Core.Search;
-    using butnotquite.Models;
-    using butnotquite.Defaults;
+    using Engine.Core;
+    using Engine.Core.Search;
+    using Engine.Models;
+    using Engine.Defaults;
     using ViewModel;
 
     using System;
@@ -20,7 +20,7 @@
     {
         private Chessboard chessboard;
         private ObservableCollection<PieceViewModel> pieces;
-        private butnotquite.Defaults.Color playerColor;
+        private Engine.Defaults.Color playerColor;
         private int computerStrength;
         private IDictionary<int, int[]> colBorders;
         private IDictionary<int, int[]> rowBorders;
@@ -30,7 +30,7 @@
         private Border lastSelectedSquare;
         private bool computerMoved;
 
-        public GameView(butnotquite.Defaults.Color playerColor, int depth)
+        public GameView(Engine.Defaults.Color playerColor, int depth)
         {
             InitializeComponent();
 
@@ -38,7 +38,7 @@
             this.pieces = new ObservableCollection<PieceViewModel>();
             this.playerColor = playerColor;
             this.computerStrength = depth;
-            this.computerMoved = (playerColor == butnotquite.Defaults.Color.White) ? true : false;
+            this.computerMoved = (playerColor == Engine.Defaults.Color.White) ? true : false;
 
             this.InitializeSquareBorders();
             this.BindPieces(false);
@@ -123,8 +123,8 @@
             {
                 int row = square / 8;
                 int col = square % 8;
-                int x = (this.playerColor == butnotquite.Defaults.Color.White) ? col : Math.Abs(col - 7);
-                int y = (this.playerColor == butnotquite.Defaults.Color.White) ? row : Math.Abs(row - 7);
+                int x = (this.playerColor == Engine.Defaults.Color.White) ? col : Math.Abs(col - 7);
+                int y = (this.playerColor == Engine.Defaults.Color.White) ? row : Math.Abs(row - 7);
                 Point position = new Point(x, y);
                 PieceViewModel pieceModel = new PieceViewModel()
                 {
@@ -154,7 +154,7 @@
             Point position = e.GetPosition(this);
             int row = this.rowBorders.FirstOrDefault(kvp => kvp.Value[0] <= position.Y && kvp.Value[1] >= position.Y).Key;
             int col = this.colBorders.FirstOrDefault(kvp => kvp.Value[0] <= position.X && kvp.Value[1] >= position.X).Key;
-            int squareIndex = (this.playerColor == butnotquite.Defaults.Color.White) ? 
+            int squareIndex = (this.playerColor == Engine.Defaults.Color.White) ? 
                 ((row * 8) + col) : 
                 ((Math.Abs((row - 7) * 8) + (Math.Abs(col - 7))));
 

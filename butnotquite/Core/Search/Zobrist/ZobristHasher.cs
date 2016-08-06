@@ -1,7 +1,7 @@
-﻿namespace butnotquite.Core.Search.Zobrist
+﻿namespace Engine.Core.Search.Zobrist
 {
-    using butnotquite.Models;
-    using butnotquite.Defaults;
+    using Engine.Models;
+    using Engine.Defaults;
 
     using System.Collections.Generic;
 

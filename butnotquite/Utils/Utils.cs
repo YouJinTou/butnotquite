@@ -1,4 +1,4 @@
-﻿namespace butnotquite.Utils
+﻿namespace Engine.Utils
 {
     using Helpers;
     using Models;

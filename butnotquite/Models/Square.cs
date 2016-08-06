@@ -1,4 +1,4 @@
-﻿namespace butnotquite.Models
+﻿namespace Engine.Models
 {
     internal struct Square
     {

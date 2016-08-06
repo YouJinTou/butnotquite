@@ -1,6 +1,6 @@
-﻿namespace butnotquite.Core.Search.Helpers
+﻿namespace Engine.Core.Search.Helpers
 {
-    using butnotquite.Models;
+    using Engine.Models;
     using Defaults;   
 
     using System.Collections.Generic;

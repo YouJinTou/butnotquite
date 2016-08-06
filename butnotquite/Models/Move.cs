@@ -1,6 +1,6 @@
-﻿namespace butnotquite.Models
+﻿namespace Engine.Models
 {
-    using butnotquite.Defaults;
+    using Engine.Defaults;
 
     using System;
     using System.Threading;

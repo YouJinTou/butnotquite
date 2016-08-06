@@ -1,4 +1,4 @@
-﻿namespace butnotquite.Core
+﻿namespace Engine.Core
 {
     using Defaults;
     using Helpers;

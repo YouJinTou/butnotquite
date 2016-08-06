@@ -1,6 +1,6 @@
-﻿namespace butnotquite.Core.Search.Models
+﻿namespace Engine.Core.Search.Models
 {
-    using butnotquite.Models;
+    using Engine.Models;
 
     internal struct TableEntry
     {

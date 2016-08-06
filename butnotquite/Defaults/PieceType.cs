@@ -1,4 +1,4 @@
-﻿namespace butnotquite.Defaults
+﻿namespace Engine.Defaults
 {
     public enum PieceType
     {

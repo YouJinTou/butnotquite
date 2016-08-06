@@ -1,10 +1,10 @@
-﻿namespace butnotquite.Core.Search
+﻿namespace Engine.Core.Search
 {
-    using butnotquite.Core.Search.Models;
-    using butnotquite.Core.Search.Helpers;
-    using butnotquite.Core.Search.Zobrist;
-    using butnotquite.Defaults;
-    using butnotquite.Models;
+    using Engine.Core.Search.Models;
+    using Engine.Core.Search.Helpers;
+    using Engine.Core.Search.Zobrist;
+    using Engine.Defaults;
+    using Engine.Models;
 
     using System.Collections.Generic;
     using System.Linq;

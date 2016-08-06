@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client"
-        xmlns:defaults="clr-namespace:butnotquite.Defaults;assembly=butnotquite"
+        xmlns:defaults="clr-namespace:Engine.Defaults;assembly=butnotquite"
         mc:Ignorable="d"
         ResizeMode="NoResize"
         Title="butnotquite Chess" Height="480" Width="480">

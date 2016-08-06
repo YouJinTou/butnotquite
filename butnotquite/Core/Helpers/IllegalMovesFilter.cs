@@ -1,4 +1,4 @@
-﻿namespace butnotquite.Core.Helpers
+﻿namespace Engine.Core.Helpers
 {
     using Defaults;
     using Models;
