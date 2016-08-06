@@ -18,6 +18,8 @@
 
     public partial class GameView : Window
     {
+        private event EventHandler OnMakeMove;
+
         private Chessboard chessboard;
         private ObservableCollection<PieceViewModel> pieces;
         private Engine.Defaults.Color playerColor;
@@ -86,8 +88,8 @@
         #endregion
 
         #region Game State
-
-        private void UpdateGameState(bool differentThread)
+                
+        private bool UpdateGameState(bool differentThread)
         {
             int fromRow = this.fromSquare / 8;
             int toRow = this.toSquare / 8;
@@ -101,6 +103,30 @@
             movingPiece.Position = toPosition;
 
             this.BindPieces(differentThread);
+            return this.IsGameOver();
+        }
+
+        private bool IsGameOver()
+        {
+            List<Move> availableMoves = MoveGenerator.GetAvailableMoves(this.chessboard);
+
+            if (availableMoves.Count == 0)
+            {
+                if (this.chessboard.KingInCheck)
+                {
+                    string victor = this.chessboard.OppositeColor == Engine.Defaults.Color.White ? "White" : "Black";
+
+                    MessageBox.Show(victor + " wins.");
+                }
+                else
+                {
+                    MessageBox.Show("Game drawn.");
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         private void BindPieces(bool differentThread)
@@ -198,7 +224,12 @@
                 this.squareSelected = false;
 
                 this.chessboard.MakeMove(playerMove);
-                this.UpdateGameState(false);
+
+                if (this.UpdateGameState(false))
+                {
+                    return;
+                }
+
                 this.GetComputerResponse();
             }
 
@@ -224,8 +255,7 @@
             bool isCastleAttempt = isKing ? (Math.Abs(this.fromSquare - this.toSquare) > 1) : false;
             bool canCastle = availableMoves.Any(m => m.Direction == Direction.Castle);
             bool isValidCastleAttempt = (isKing && isCastleAttempt && canCastle) ?
-                availableMoves.Any(m => m.KingToSquare == this.toSquare) :
-                false;
+                availableMoves.Any(m => m.KingToSquare == this.toSquare) : false;
             bool isValidNonCastleMove = isValidCastleAttempt ? false :
                 availableMoves.Any(m => m.FromSquare == this.fromSquare && m.ToSquare == this.toSquare);
 

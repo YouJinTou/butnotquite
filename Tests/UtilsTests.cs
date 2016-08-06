@@ -1,8 +1,8 @@
 ﻿namespace Engine.Tests
 {
-    using Defaults;
-    using Models;
-    using Utils;
+    using Engine.Defaults;
+    using Engine.Models;
+    using Engine.Utils;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;

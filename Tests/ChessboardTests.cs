@@ -1,9 +1,9 @@
 ﻿namespace Engine.Tests
 {
-    using Core;
-    using Defaults;
-    using Models;
-    using Utils;
+    using Engine.Core;
+    using Engine.Defaults;
+    using Engine.Models;
+    using Engine.Utils;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Collections.Generic;

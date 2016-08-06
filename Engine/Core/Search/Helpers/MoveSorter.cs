@@ -11,7 +11,7 @@
         private static Chessboard position;
         private static IDictionary<int, Move[]> killerMoves;
 
-        internal static List<Move> SortMoves(Chessboard currentPosition, List<Move> availableMoves, IDictionary<int, Move[]> currentKillerMoves, int depth)
+        internal static void SortMoves(Chessboard currentPosition, List<Move> availableMoves, IDictionary<int, Move[]> currentKillerMoves, int depth)
         {
             List<Move> sortedMoves = new List<Move>();
             position = currentPosition;
@@ -35,8 +35,6 @@
             }
 
             availableMoves.InsertRange(0, sortedMoves);
-
-            return availableMoves;
         }
 
         private static List<Move> SortByMvvLva(List<Move> availableMoves)

@@ -28,10 +28,10 @@
 
             position.TranspositionTable.Clear();
 
-            DoAlphaBetaPruning(0, int.MinValue, int.MaxValue, position);
+            DoAlphaBetaPruning(0, int.MinValue, int.MaxValue);
         }
 
-        private static int DoAlphaBetaPruning(int depth, int alpha, int beta, Chessboard position)
+        private static int DoAlphaBetaPruning(int depth, int alpha, int beta)
         {
             VisitedNodes++;
 
@@ -44,7 +44,7 @@
                 return gameStateScore;
             }
 
-            availableMoves = MoveSorter.SortMoves(position, availableMoves, killerMoves, depth);
+            MoveSorter.SortMoves(position, availableMoves, killerMoves, depth);
 
             for (int moveIndex = 0; moveIndex < availableMoves.Count; moveIndex++)
             {
@@ -60,7 +60,7 @@
                     (position.TranspositionTable.ContainsKey(zobristKey) && 
                     position.TranspositionTable[zobristKey].Depth >= depth) ?
                     position.TranspositionTable[zobristKey].Score :
-                    DoAlphaBetaPruning(depth + 1, alpha, beta, position);
+                    DoAlphaBetaPruning(depth + 1, alpha, beta);
 
                 position.UndoMove(currentMove);
                 position.GameHistory.Pop();
@@ -107,18 +107,6 @@
         }
 
         #region Helpers
-
-        private static void UpdatePrincipalVariation(int depth, Move bestMove)
-        {
-            if (!position.PrincipalVariation.ContainsKey(depth))
-            {
-                position.PrincipalVariation.Add(depth, bestMove);
-            }
-            else
-            {
-                position.PrincipalVariation[depth] = bestMove;
-            }
-        }
 
         private static int GetGameStateScore(Chessboard position, int availalbeMovesCount, int depth)
         {
@@ -198,6 +186,18 @@
                         killerMoves[depth][0] = Utils.Utils.MakeDeepCopy(currentMove);
                     }
                 }
+            }
+        }
+
+        private static void UpdatePrincipalVariation(int depth, Move bestMove)
+        {
+            if (!position.PrincipalVariation.ContainsKey(depth))
+            {
+                position.PrincipalVariation.Add(depth, bestMove);
+            }
+            else
+            {
+                position.PrincipalVariation[depth] = bestMove;
             }
         }
 
