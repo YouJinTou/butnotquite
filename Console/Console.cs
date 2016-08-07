@@ -41,7 +41,7 @@
             //Chessboard position = Utils.LoadPositionFromFenString("8/4k3/5pp1/p1p2B2/1rb2P2/8/6PP/2B1K1NR b K - 1 82");
             //Chessboard position = Utils.LoadPositionFromFenString("8/5k2/5pp1/p1p2n2/1rb2PB1/8/6PP/2B1K1NR w K - 8 81");
             //Chessboard position = Utils.LoadPositionFromFenString("8/1k6/5pp1/p1p5/1rb2P1P/3B4/3B2P1/4K1NR b K - 12 41");
-            //Chessboard position = Utils.LoadPositionFromFenString("r4r1k/1bpq1p1n/p1np4/1p1Bb1BQ/P7/6R1/1P3PPP/1N2R1K1 w - - 4 28"); // Mate in 4
+            Chessboard position = Utils.LoadPositionFromFenString("r4r1k/1bpq1p1n/p1np4/1p1Bb1BQ/P7/6R1/1P3PPP/1N2R1K1 w - - 4 28"); // Mate in 4
             //Chessboard position = Utils.LoadPositionFromFenString("4rr1k/1Ppq1p1n/2np4/3B2BQ/8/6b1/1P3PPP/1N2R1K1 b - - 8 32");
             //Chessboard position = Utils.LoadPositionFromFenString("5k2/2p4n/8/p3Q3/5r2/8/5q1P/7K b - - 17 59");
             //Chessboard position = Utils.LoadPositionFromFenString("r1b1k2r/ppppnppp/2n2q2/2b5/3NP3/2P1B3/PP3PPP/RN1QKB1R w KQkq - 5 13");
@@ -50,26 +50,26 @@
             //Chessboard position = Utils.LoadPositionFromFenString("rnb1kb1r/3p1ppp/p2q4/1ppNn1B1/B3P3/P7/R1PQ1PPP/4NRK1 w kq 17 0 16");
             //Chessboard position = Utils.LoadPositionFromFenString("rnb1kb1r/3p1ppp/p2q4/QppNn1B1/B3P3/P7/R1P2PPP/4NRK1 b kq 17 0 16");
             //Chessboard position = Utils.LoadPositionFromFenString("r1b1k1nr/pppp1ppp/8/4P3/1P6/6P1/PP2Q2P/RNB1KBNq b KQkq - 0 6");
-            Chessboard position = Utils.LoadPositionFromFenString("1n1qkb1r/4pppp/2p3b1/3nP3/r5P1/3B3P/PPPP1P2/R1BQK2R w KQkq - 0 11");
+            //Chessboard position = Utils.LoadPositionFromFenString("1n1qkb1r/4pppp/2p3b1/3nP3/r5P1/3B3P/PPPP1P2/R1BQK2R w KQkq - 0 11");
 
             position.PrintBoard();
 
             while (true)
             {
-                try
-                {
+                //try
+                //{
                     sw.Start();
 
-                    Search.Initialize(position, 4);
+                    Search.Initialize(position, 5);
 
                     sw.Stop();
-                }
-                catch
-                {
-                    position.PrintBoard();
-                    System.Console.WriteLine("\n\nERROR");
-                    System.Console.ReadLine();
-                }
+                //}
+                //catch
+                //{
+                //    position.PrintBoard();
+                //    System.Console.WriteLine("\n\nERROR");
+                //    System.Console.ReadLine();
+                //}
 
                 if (position.MaximizingSideBestMove.Direction != Direction.Castle)
                 {

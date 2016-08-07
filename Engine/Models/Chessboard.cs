@@ -22,7 +22,7 @@
         internal IDictionary<long, Piece[]> MoveSquares;
         internal IDictionary<long, int> FiftyMoveMarkers;
 
-        internal Stack<long> GameHistory;
+        internal IDictionary<long, int> GameHistory;
         internal IDictionary<int, Move> PrincipalVariation;
         internal IDictionary<long, TableEntry> TranspositionTable;
 
@@ -50,7 +50,7 @@
             this.WhiteCanCastle = true;
             this.BlackCanCastle = true;
             this.EnPassantSquare = -1;
-            this.GameHistory = new Stack<long>(200);
+            this.GameHistory = new Dictionary<long, int>();
             this.PrincipalVariation = new Dictionary<int, Move>();
             this.TranspositionTable = new Dictionary<long, TableEntry>();
             this.OpponentActivity = new Dictionary<Piece, HashSet<int>>(30);

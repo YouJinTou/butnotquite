@@ -54,7 +54,14 @@
 
                 long zobristKey = ZobristHasher.GetZobristHash(position);
 
-                position.GameHistory.Push(zobristKey);
+                if (!position.GameHistory.ContainsKey(zobristKey))
+                {
+                    position.GameHistory.Add(zobristKey, 1);
+                }
+                else
+                {
+                    position.GameHistory[zobristKey]++;
+                }
 
                 int score =
                     (position.TranspositionTable.ContainsKey(zobristKey) && 
@@ -63,7 +70,7 @@
                     DoAlphaBetaPruning(depth + 1, alpha, beta);
 
                 position.UndoMove(currentMove);
-                position.GameHistory.Pop();
+                position.GameHistory.Remove(zobristKey);
 
                 if (position.SideToMove == maximizingSide)
                 {
@@ -145,11 +152,21 @@
 
         private static bool ThreefoldRepetitionEnforcable(Chessboard position)
         {
-            bool drawEnforcable = (position.GameHistory
-                .GroupBy(pos => pos)
-                .Any(group => group.Count() >= 3));
+            if (position.Board[position.LastMove.ToSquare].OccupiedBy.Type == PieceType.Pawn)
+            {
+                return false;
+            }
+
+            long zobristKey = ZobristHasher.GetZobristHash(position);
+            bool drawEnforcable = position.GameHistory.ContainsKey(zobristKey) ? 
+                position.GameHistory[zobristKey] >= 3 : false;
 
             return drawEnforcable;
+        }
+
+        private static bool InsufficientMaterial()
+        {
+            return false;
         }
 
         private static int InvertScore(int score)
