@@ -1,9 +1,10 @@
 # butnotquite
 A chess engine
 
-- A simplistic GUI
+- Simplistic GUI
 - Valid move generation incorporating all rules of chess
 - Move search via Alpha-Beta pruning
+- MVV/LVA, killer moves and principal variation move sorting
 - A simple evaluation function
 - Zobrist hashing
 - Transposition table
