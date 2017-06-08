@@ -117,7 +117,7 @@
 
         private static int GetGameStateScore(Chessboard position, int availalbeMovesCount, int depth)
         {
-            if (ThreefoldRepetitionEnforcable(position) || position.FiftyMoveCounter >= 100)
+            if (ThreefoldRepetitionEnforceable(position) || position.FiftyMoveCounter >= 100)
             {
                 return 0;
             }
@@ -150,7 +150,7 @@
             return 0; // Stalemate
         }
 
-        private static bool ThreefoldRepetitionEnforcable(Chessboard position)
+        private static bool ThreefoldRepetitionEnforceable(Chessboard position)
         {
             if (position.Board[position.LastMove.ToSquare].OccupiedBy.Type == PieceType.Pawn)
             {
